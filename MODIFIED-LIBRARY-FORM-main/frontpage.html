@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECC Library System</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('bg.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: rgb(12, 4, 4);
+            font-size: 15px;
+        }
+
+        .header-container {
+            background-color: rgba(0, 0, 0, 0.829);
+            width: 100%;
+            padding: 5px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 10px;
+            box-sizing: border-box;
+            color: rgb(255, 255, 255);
+        }
+
+        .header-container img {
+            width: 42px;
+            height: 42px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            transition: all 0.3s ease;
+            transform-origin: center;
+        }
+
+        .header-container a:hover img {
+            transform: scale(1.1) rotate(5deg);
+            filter: drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3));
+        }
+
+        .header-container span {
+            font-size: 30px;
+            font-weight: bold;
+            margin-left: 10px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .header-container nav {
+            margin-left: auto;
+            display: flex;
+            gap: 15px;
+        }
+
+        .header-container nav a {
+            text-decoration: none;
+            color: rgb(255, 255, 255);
+            font-weight: bold;
+            font-size: 15px;
+            padding: 8px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        /* Container Styles */
+        .container {
+            background: rgb(209, 229, 252);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 30px 20px;
+            /* Increased top padding */
+            max-width: 80%;
+            width: 1200px;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-top: 20px;
+            /* Increased margin to push content lower */
+        }
+
+        .left-section {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 90px;
+            padding-top: 30px;
+            padding-left: 100px;
+            padding-bottom: 20px;
+            padding-right: 30px;
+            /* Added padding to push logo down */
+        }
+
+
+        .right-section {
+            flex: 5;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 50px;
+            padding-top: 50px;
+            padding-left: 60px;
+
+            padding-bottom: 20px;
+            /* Added padding to push buttons down */
+        }
+
+
+        .logo-container {
+            margin: 10px 0;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .logo-container img {
+            width: 300px;
+            height: auto;
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
+            transition: all 0.3s ease;
+        }
+
+        .logo-container img:hover {
+            transform: scale(1.05);
+            filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.4));
+        }
+
+        .welcome-message {
+            font-size: 36px;
+            margin: 0 0 30px 0;
+            text-align: center;
+            color: #201f1f;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .portal-button {
+            background: linear-gradient(to right, #4169e1, #2a52be);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+            cursor: pointer;
+        }
+
+        .portal-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(to right, #2a52be, #1a3a8f);
+        }
+
+        .portal-button i {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .footer {
+            margin-top: 40px;
+            /* Increased margin to push footer down */
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+        }
+
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-wrapper {
+                flex-direction: column;
+                align-items: center;
+                margin-top: 20px;
+            }
+
+            .left-section,
+            .center-section,
+            .right-section {
+                width: 100%;
+                padding: 10px;
+                padding-top: 20px;
+            }
+
+            .welcome-message {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            .portal-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <div class="header-container">
+        <a href="frontpage.html"><img src="ecclogo.png" alt="ECC Logo" style="cursor: pointer;"></a>
+        <span><b>ECUMENICAL CHRISTIAN COLLEGE</b></span>
+    </div>
+
+    <div class="container">
+        <div class="content-wrapper">
+
+
+            <div class="left-section">
+                <div class="logo-container">
+                    <img src="ecclogo.png" alt="ECC Logo">
+                    <div class="welcome-message">
+                        <span><b>LIBRARY MANAGEMENT SYSTEM</b></span>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="right-section">
+                <a href="LogForm.html" class="portal-button">
+                    <i class="fas fa-clock"></i>
+                    Library Time Log Form
+                </a>
+
+                <a href="voucher.html" class="portal-button">
+                    <i class="fas fa-book-reader"></i>
+                    ECC Library Portal
+                </a>
+
+                <a href="BorrowersForm.html" class="portal-button">
+                    <i class="fas fa-book"></i>
+                    Borrower's Form
+                </a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>For assistance, please reach out the library staff.</p>
+        </div>
+    </div>
+</body>
+
+</html>
