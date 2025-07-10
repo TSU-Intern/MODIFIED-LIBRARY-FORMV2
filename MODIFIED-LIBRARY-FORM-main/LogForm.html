@@ -264,7 +264,7 @@
         }
 
         #passwordModal button:last-child {
-            background-color: #f44336;
+            background-color: #ff5447;
             color: white;
         }
 
@@ -272,13 +272,8 @@
             background-color: #d32f2f;
         }
 
-        .delete-controls {
-            margin-top: 10px;
-            text-align: right;
-        }
-
         .delete-btn {
-            background-color: #f44336;
+            background-color: #ff5447;
         }
 
         .delete-btn:hover {
@@ -346,9 +341,6 @@
         </nav>
     </div>
 
-
-
-
     <div class="container">
         <div class="header">ECC LIBRARY TIME LOG FORM</div>
         <div class="reminder">
@@ -379,6 +371,8 @@
                 <button type="button" onclick="downloadExcel()">Download Word</button>
                 <button type="button" onclick="showDeleteConfirmation()">Clear Data</button>
                 <button id="downloadPdfBtn" type="button">Download Graph</button>
+                <button class="delete-btn" id="deleteSelectedBtn" type="button"
+                    onclick="showDeleteConfirmation()">Delete Selected</button>
                 <canvas id="usageChart" style="display: none;"></canvas> <!-- Hidden Chart -->
             </div>
 
@@ -400,11 +394,6 @@
             </thead>
             <tbody id="tableBody"></tbody>
         </table>
-
-        <div class="delete-controls">
-            <button class="delete-btn" id="deleteSelectedBtn" onclick="showDeleteConfirmation()">Delete
-                Selected</button>
-        </div>
     </div>
     <div id="passwordModal" style="display: none;">
         <div>
