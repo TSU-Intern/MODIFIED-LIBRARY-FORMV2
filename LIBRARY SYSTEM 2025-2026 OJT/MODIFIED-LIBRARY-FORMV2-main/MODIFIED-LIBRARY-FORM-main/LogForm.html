@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Time Log Form</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.30.0/docxtemplater.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('bg.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: rgb(12, 4, 4);
+            font-size: 15px;
+        }
+
+        .header-container {
+            background-color: rgba(0, 0, 0, 0.829);
+            width: 100%;
+            padding: 5px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 10px;
+            box-sizing: border-box;
+            color: rgb(255, 255, 255);
+        }
+
+        .header-container img {
+            width: 42px;
+            height: 42px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            transition: all 0.3s ease;
+            transform-origin: center;
+        }
+
+        .header-container a:hover img {
+            transform: scale(1.1) rotate(5deg);
+            filter: drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3));
+        }
+
+        .header-container span {
+            font-size: 30px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .header-container nav {
+            margin-left: auto;
+            display: flex;
+            gap: 15px;
+        }
+
+        .header-container nav a {
+            text-decoration: none;
+            color: rgb(255, 255, 255);
+            font-weight: bold;
+            font-size: 15px;
+            padding: 8px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .header-container nav a:hover {
+            background-color: rgb(228, 41, 56);
+        }
+
+        .container {
+            text-align: center;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            max-width: 80%;
+            width: 1200px;
+            margin-top: 20px;
+        }
+
+        .header {
+            background: linear-gradient(to right, rgb(16, 17, 22), #4169e1);
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            font-size: 24px;
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+
+        .reminder {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: red;
+            font-style: italic;
+            font-weight: bold;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 150px;
+            padding: 6px;
+            border: 1px solid #110101;
+            border-radius: 5px;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button {
+            background-color: royalblue;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background-color: darkblue;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: white;
+            color: black;
+        }
+
+        th,
+        td {
+            padding: 6px;
+            text-align: center;
+            font-size: 14px;
+            border: 1px solid #ddd;
+        }
+
+        .select-column {
+            width: 30px;
+            min-width: 30px;
+
+        }
+
+        th {
+            background-color: royalblue;
+            color: white;
+        }
+
+        .time-out-btn {
+            background-color: #4caf50;
+            color: white;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .time-out-btn:disabled {
+            background-color: #888;
+            cursor: not-allowed;
+        }
+
+        .timed-out {
+            background-color: #f44336 !important;
+        }
+
+        #passwordModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            /* Darker overlay for better contrast */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #passwordModal>div {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            width: 350px;
+            max-width: 90%;
+            /* Prevent too wide on mobile */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            position: relative;
+            /* For potential close button */
+        }
+
+        #passwordModal h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.3em;
+        }
+
+        #passwordModal input {
+            width: 100%;
+            padding: 10px;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        #passwordModal div>div {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        #passwordModal button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        #passwordModal button:first-child {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #passwordModal button:first-child:hover {
+            background-color: #45a049;
+        }
+
+        #passwordModal button:last-child {
+            background-color: #ff5447;
+            color: white;
+        }
+
+        #passwordModal button:last-child:hover {
+            background-color: #d32f2f;
+        }
+
+        .delete-btn {
+            background-color: #ff5447;
+        }
+
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        @media print {
+            body {
+                margin: 0;
+            }
+
+            .container {
+                width: 100%;
+                margin: 0;
+            }
+
+            table {
+                width: 100%;
+                border: none;
+            }
+
+            th,
+            td {
+                padding: 4px;
+                font-size: 12px;
+            }
+
+            .form-row,
+            .buttons,
+            .header,
+            .reminder,
+            .header-container nav,
+            .delete-controls {
+                display: none;
+            }
+
+            /* Hide checkboxes when printing */
+            input[type="checkbox"] {
+                display: none;
+            }
+        }
+
+        /* Added CSS for error message */
+        .error-message {
+            color: red;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            font-style: Bold;
+            font-size: 26px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+            /* Hidden by default */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header-container">
+        <a href="frontpage.html"> <img src="ecclogo.png" alt="ECC Logo"> </a>
+        <span><b>ECUMENICAL CHRISTIAN COLLEGE</b></span>
+        <nav>
+            <a href="LogForm.html">LOG FORM</a>
+            <a href="voucher.html">ECC PORTAL</a>
+            <a href="BorrowersForm.html">BORROWERS FORM</a>
+            <a href="Admin.html" style="margin-right: 10px;">ADMIN</a> 
+        </nav>
+    </div>
+
+    <div class="container">
+        <div class="header">ECC LIBRARY TIME LOG FORM</div>
+        <div class="reminder">
+            Reminder: Don't forget to click the Time Out before leaving the Library.
+        </div>
+        <form id="timeInForm">
+            <div class="form-row">
+                <label for="name">Name:</label>
+                <input type="text" id="name" placeholder="Enter Complete Name" required>
+                <label for="section">Section:</label>
+                <select id="section" required>
+                    <option value="" disabled selected>Select Section</option>
+                    <option value="Teacher">Teacher</option>
+                    <option value="7-Paul">7-Paul</option>
+                    <option value="8-Jude">8-Jude</option>
+                    <option value="9-Abraham">9-Abraham</option>
+                    <option value="10-Calvin">10-Calvin</option>
+                    <option value="10-Luther">10-Luther</option>
+                    <option value="11-HUMMS">11-HUMMS</option>
+                    <option value="11-ABM">11-ABM</option>
+                    <option value="11-STEM">11-STEM</option>
+                    <option value="12-HUMMS">12-HUMMS</option>
+                    <option value="12-ABM">12-ABM</option>
+                    <option value="12-STEM">12-STEM</option>
+                </select>
+                <button type="button" onclick="addEntry()">Time In</button>
+                <button type="button" onclick="window.print()">Print</button>
+                <button type="button" onclick="downloadExcel()">Download Word</button>
+                <button type="button" onclick="showDeleteConfirmation()">Clear Data</button>
+                <button id="downloadPdfBtn" type="button">Download Graph</button>
+                <button class="delete-btn" id="deleteSelectedBtn" type="button"
+                    onclick="showDeleteConfirmation()">Delete Selected</button>
+                <canvas id="usageChart" style="display: none;"></canvas> <!-- Hidden Chart -->
+            </div>
+
+            <!-- Added error message element -->
+            <div id="errorMessage" class="error-message" style="display: none;">Please enter your complete name!</div>
+        </form>
+        <table id="entriesTable">
+            <thead>
+                <tr>
+                    <th class="select-column">Select</th>
+                    <th>#</th>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Section</th>
+                    <th>Time In</th>
+                    <th>Time Out</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+    <div id="passwordModal" style="display: none;">
+        <div>
+            <h3>Enter Password</h3>
+            <input type="password" id="passwordInput" placeholder="Enter Password" />
+            <div>
+                <button onclick="verifyPassword()">Submit</button>
+                <button onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const tableBody = document.getElementById('tableBody');
+        let entries = JSON.parse(localStorage.getItem('libraryEntries')) || [];
+
+        function renderTable() {
+            tableBody.innerHTML = entries.map((entry, index) => `
+                <tr>
+                    <td><input type="checkbox" class="delete-checkbox" data-index="${index}"></td>
+                    <td>${entries.length - index}</td>
+                    <td>${formatDate(entry.date)}</td>
+                    <td>${entry.name}</td>
+                    <td>${entry.section}</td>
+                    <td>${entry.timeIn || 'N/A'}</td>
+                    <td>${entry.timeOut || 'N/A'}</td>
+                    <td>
+                        <button 
+                            class="time-out-btn ${entry.timeOut ? 'timed-out' : ''}" 
+                            onclick="timeOut(${index})" 
+                            ${entry.timeOut ? 'disabled' : ''}>
+                            ${entry.timeOut ? 'Timed Out' : 'Time Out'}
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function formatDate(date) {
+            const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const dateObj = new Date(date);
+            const day = daysOfWeek[dateObj.getDay()];
+            return `${day}, ${dateObj.getMonth() + 1}/${dateObj.getDate()}/${dateObj.getFullYear()}`;
+        }
+
+        function addEntry() {
+            const name = document.getElementById('name').value.trim();
+            const section = document.getElementById('section').value;
+
+            // Added validation for at least two names
+            const nameParts = name.split(' ');
+            if (nameParts.length < 2) {
+                document.getElementById('errorMessage').style.display = 'block';
+                return; // Stop the function if validation fails
+            } else {
+                document.getElementById('errorMessage').style.display = 'none';
+            }
+
+            if (!name || !section) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            const now = new Date();
+            const currentDate = now.toISOString().split('T')[0];
+            const currentTime = now.toLocaleTimeString();
+
+            const isDuplicate = entries.some(entry =>
+                entry.name === name &&
+                entry.section === section &&
+                currentDate === entry.date &&
+                new Date().getTime() - new Date(`${entry.date}T${entry.timeIn}`).getTime() < 600000
+            );
+
+            if (isDuplicate) {
+                alert('Duplicate entry detected. Please wait before logging again.');
+                return;
+            }
+
+            entries.unshift({
+                date: currentDate,
+                name,
+                section,
+                timeIn: currentTime,
+                timeOut: null,
+            });
+
+            localStorage.setItem('libraryEntries', JSON.stringify(entries));
+            renderTable();
+            document.getElementById('timeInForm').reset();
+        }
+
+        function timeOut(index) {
+            entries[index].timeOut = new Date().toLocaleTimeString();
+            localStorage.setItem('libraryEntries', JSON.stringify(entries));
+            renderTable();
+        }
+
+        function showDeleteConfirmation() {
+            // Check if this is for deleting selected rows or clearing all data
+            const isDeleteSelected = this.event.target.id === 'deleteSelectedBtn';
+
+            if (isDeleteSelected) {
+                const checkedBoxes = document.querySelectorAll('.delete-checkbox:checked');
+                if (checkedBoxes.length === 0) {
+                    alert('Please select at least one entry to delete.');
+                    return;
+                }
+            }
+
+            document.getElementById('passwordModal').style.display = 'flex';
+            document.getElementById('passwordInput').focus();
+        }
+
+        function verifyPassword() {
+            const password = document.getElementById('passwordInput').value;
+            if (password !== 'Admin12345') {
+                alert('Incorrect password. Entries were not deleted.');
+                closeModal();
+                return;
+            }
+
+            const isDeleteSelected = document.querySelectorAll('.delete-checkbox:checked').length > 0;
+
+            if (isDeleteSelected) {
+                // Delete selected entries
+                const checkedBoxes = document.querySelectorAll('.delete-checkbox:checked');
+                const indexesToDelete = Array.from(checkedBoxes).map(checkbox =>
+                    parseInt(checkbox.getAttribute('data-index')))
+                    .sort((a, b) => b - a); // Sort in descending order to avoid index shifting issues
+
+                // Delete entries from highest index to lowest
+                indexesToDelete.forEach(index => {
+                    entries.splice(index, 1);
+                });
+            } else {
+                // Clear all data
+                entries = [];
+            }
+
+            localStorage.setItem('libraryEntries', JSON.stringify(entries));
+            renderTable();
+            closeModal();
+        }
+
+        function closeModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+            document.getElementById('passwordInput').value = '';
+        }
+
+        function downloadExcel() {
+            // Check if entries are empty
+            if (entries.length === 0) {
+                alert("No data available to generate the Word document.");
+                return;
+            }
+
+            // Create a Word document content
+            const tableContent = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+            <head>
+                <meta charset="UTF-8">
+                <title>Library Time Log</title>
+                <style>
+                    h1 {
+                        text-align: center; /* Center the heading */
+                        font-size: 24px;
+                        margin-bottom: 20px;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 20px;
+                        font-family: Arial, sans-serif;
+                        font-size: 14px;
+                    }
+                    th, td {
+                        border: 0.5px solid #000; /* Set border to 0.5px */
+                        padding: 8px;
+                        text-align: center;
+                    }
+                    th {
+                        background-color: royalblue;
+                        color: white;
+                    }
+                </style>
+            </head>
+            <body>
+                <h1>ECC Library Time Log</h1>
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Name</th>
+                            <th>Section</th>
+                            <th>Time In</th>
+                            <th>Time Out</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${entries.map((entry, index) => `
+                            <tr>
+                                <td>${entries.length - index}</td>
+                                <td>${formatDate(entry.date)}</td>
+                                <td>${entry.name}</td>
+                                <td>${entry.section}</td>
+                                <td>${entry.timeIn}</td>
+                                <td>${entry.timeOut || 'N/A'}</td>
+                                <td>${entry.timeOut ? 'Timed Out' : 'Not Timed Out'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </body>
+        </html>
+    `;
+
+            // Convert the HTML content to a Blob
+            const blob = new Blob([tableContent], { type: 'application/msword' });
+
+            // Save the Blob as a Word document using FileSaver.js
+            saveAs(blob, 'library_time_log.doc');
+        }
+
+        document.getElementById('name').addEventListener('input', function () {
+            this.value = this.value
+                .toLowerCase()
+                .split(' ')
+                .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+                .join(' ');
+        });
+
+        document.getElementById("downloadPdfBtn").addEventListener("click", function () {
+            // Check if entries are empty
+            if (entries.length === 0) {
+                alert("No data available to generate the chart.");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Title
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(22);
+            const pageWidth = doc.internal.pageSize.getWidth();
+            doc.text("ECC Library Data Usage Report", pageWidth / 2, 10, { align: "center" });
+
+            // Collect Data Usage by Section
+            const sectionUsage = {};
+            entries.forEach(entry => {
+                sectionUsage[entry.section] = (sectionUsage[entry.section] || 0) + 1;
+            });
+
+            // Define section order
+            const sectionOrder = [
+                "Teacher", "7-Paul", "8-Jude", "9-Abraham", "9-Isaac",
+                "10-Luther", "11-HUMMS", "11-ABM", "11-STEM",
+                "12-HUMMS", "12-ABM", "12-STEM"
+            ];
+
+            // Filter & sort labels based on defined order
+            const labels = sectionOrder.filter(section => section in sectionUsage);
+            const data = labels.map(label => sectionUsage[label]);
+
+            const canvas = document.getElementById("usageChart");
+            const ctx = canvas.getContext("2d");
+
+            // Increase resolution
+            canvas.width = 1600;  // 2x for higher quality
+            canvas.height = 800;
+            ctx.scale(2, 2);  // Scale drawing for better resolution
+
+            // Destroy previous chart if it exists
+            if (window.myChart) {
+                window.myChart.destroy();
+            }
+
+            // Generate Chart
+            window.myChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Data Usage per Section",
+                        data: data,
+                        backgroundColor: "royalblue",
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'black', // Set legend font color to black
+                                font: {
+                                    size: 25, // Increase legend font size
+                                    weight: 'bold' // Make the font bold
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: 'black',
+                                font: {
+                                    size: 25, // Increase x-axis font size
+                                    weight: 'bold', // Make the font bold
+                                }
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: 'black',
+                                font: {
+                                    size: 25, // Increase y-axis font size
+                                    weight: 'bold', // Make the font bold
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Wait for Chart to Render, then Capture Image
+            setTimeout(() => {
+                const chartImage = canvas.toDataURL("image/png", 1.0); // Set high-quality PNG
+
+                // Add Chart to PDF
+                doc.addImage(chartImage, "PNG", 10, 20, 180, 90);  // Reduce scaling for sharpness
+
+                // Save PDF
+                doc.save("Library_Data_Report.pdf");
+
+                // Hide Canvas Again
+                canvas.style.display = "none";
+            }, 1000); // Wait 1 second for chart rendering
+        });
+
+        renderTable();
+    </script>
+    
+</body>
+
+</html>
