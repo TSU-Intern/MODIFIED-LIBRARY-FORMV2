@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECC Student Portal Voucher Usage</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.30.0/docxtemplater.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="/js/FileSaver.min.js"></script>
+
+   <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('bg.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            background-color: royalblue;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
+            font-size: 15px;
+        }
+        .header-container {
+            background-color: rgba(0, 0, 0, 0.829);
+            width: 100%;
+            padding: 5px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 10px;
+            box-sizing: border-box;
+            color: rgb(255, 255, 255);
+        }
+        .header-container img {
+            width: 42px;
+            height: 42px;
+        }
+        .header-container span {
+            font-size: 30px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .header-container nav {
+            margin-left: auto;
+            display: flex;
+            gap: 15px;
+        }
+        .header-container nav a {
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            font-size: 15px;
+            padding: 8px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .header-container nav a:hover {
+            background-color: rgb(228, 41, 56);
+        }
+        .container {
+            text-align: center;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            max-width: 80%;
+            width: 1200px;
+            margin-top: 20px;
+        }
+        .header {
+            background: linear-gradient(to right, rgb(16, 17, 22), #4169e1);
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            font-size: 24px;
+            margin-bottom: 3px;
+            padding: 10px;
+        }
+        .form-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        label {
+            font-weight: bold;
+            color: black;
+            width: auto;
+            text-align: right;
+            font-size: 15px;
+        }
+        input, select {
+            text-transform: capitalize;
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            color: black;
+            width: 200px;
+            font-size: 15px;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        button {
+            background-color: royalblue;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            padding: 6px 15px;
+            font-size: 15px;
+            border: none;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: darkblue;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 3px;
+            background: linear-gradient(to bottom, #ffffff, #f0f0f0);
+            color: black;
+            border-radius: 10px;
+            overflow: hidden;
+            padding: 10px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            text-align: center;
+            padding: 5px;
+            font-size: 15px;
+        }
+        th {
+            background-color: royalblue;
+            color: white;
+        }
+        .password-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border: 1px solid #ccc;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            color: black;
+        }
+        .password-popup input {
+            margin-bottom: 10px;
+            width: 100%;
+        }
+        .password-popup button {
+            margin: 0 5px;
+        }
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+        }
+        .wordload {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1001;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 24px;
+}
+/* Add this to hide both header and checkbox cells completely when not in delete mode */
+th.select-header,
+    td.select-cell {
+        width: 50px !important; /* Fixed width for select column */
+    min-width: 50px !important;
+    max-width: 50px !important;
+    padding: 2px !important;
+    display: none;
+    }
+    .delete-checkbox {
+    margin: 0 auto;
+    display: block;
+    width: 16px;
+    height: 16px;
+}
+
+.show-delete-mode .delete-checkbox {
+    display: block !important;
+    margin: 0 auto;
+}
+
+.show-delete-mode th.select-header,
+.show-delete-mode td.select-cell {
+    display: table-cell !important;
+    width: 30px;
+}
+
+/* Add red color for confirmation state */
+#deleteBtn.confirm-mode {
+    background-color: #dc3545 !important;
+}
+.delete-controls {
+    display: none;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.show-delete-mode .delete-controls {
+    display: flex;
+}
+/* Add this to highlight selected rows */
+tr.selected-row {
+    background-color: #fff3cd !important;
+}
+.pagination {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.pagination button {
+    padding: 5px 10px;
+    background-color: royalblue;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.pagination button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    font-weight: bold;
+    color: black;
+}
+@media (max-width: 768px) {
+    .form-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    label {
+        text-align: left;
+        width: 100%;
+    }
+    input, select {
+        width: 100%;
+    }
+}
+    </style>
+</head>
+<body>
+
+<!-- Navigation Menu -->
+<div class="header-container">
+    <img src="ecclogo.png" alt="ECC Logo">
+    <span>ECUMENICAL CHRISTIAN COLLEGE</span>
+    <nav>
+        <a href="LogForm.html">LOG FORM</a>
+        <a href="voucher.html">ECC PORTAL</a>
+        <a href="BorrowersForm.html">BORROWERS FORM</a>
+        
+    </nav>
+</div>
+
+<h1>ECC Student Portal Voucher Usage</h1>
+<div class="container">
+    <form id="voucherForm">
+        <div class="form-group">
+            <label for="studentName">Name:</label>
+            <input type="text" id="studentName" placeholder="Enter Name" required>
+            
+
+            <label for="section">Section:</label>
+            <select id="section" required>
+                <option value="">Select Section</option>
+                <option value="7-Paul">7-Paul</option>
+                <option value="8-Jude">8-Jude</option>
+                <option value="9-Abraham">9-Abraham</option>
+                <option value="9-Isaac">9-Isaac</option>
+                <option value="10-Luther">10-Luther</option>
+                <option value="11-HUMMS">11-HUMMS</option>
+                <option value="11-ABM">11-ABM</option>
+                <option value="11-STEM">11-STEM</option>
+                <option value="12-HUMMS">12-HUMMS</option>
+                <option value="12-ABM">12-ABM</option>
+                <option value="12-STEM">12-STEM</option>
+            </select>
+            <button type="submit">Generate Voucher</button>
+        </div>
+
+        <div class="buttons">
+            <button type="button" class="print-button" id="printBtn">Print</button>
+            <button type="button" id="clearBtn">Clear Table</button>
+            <button type="button" class="download-button" id="downloadBtn">Download as Word</button>
+            <button id="downloadPdfBtn" type="button">Download Graph</button>
+            <canvas id="hiddenCanvas" style="display: none;"></canvas>
+            <button type="button" id="deleteBtn">Delete Entries</button>
+            <div class="delete-controls">
+                <button type="button" id="confirmDeleteBtn" style="background-color: #dc3545;">Confirm Delete</button>
+                <button type="button" id="cancelDeleteBtn">Cancel</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Table section -->
+    <table id="voucherTable">
+        <thead>
+            <tr>
+                <th class="select-header">Select</th>
+                <th>#</th>
+                <th>Date & Time</th>
+                <th>Name</th>
+                <th>Section</th>
+                <th>Voucher Code</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Generated voucher rows will appear here -->
+        </tbody>
+    </table>
+    <div class="pagination">
+        <button id="prevPage">Previous</button>
+        <span id="pageInfo">Page 1 of 1</span>
+        <button id="nextPage">Next</button>
+    </div>
+
+    <!-- Password Form for clearing table -->
+    <div id="passwordForm" class="password-popup">
+        <h3>Clear Table Data</h3>
+        <p>Enter password to confirm:</p>
+        <input type="password" id="clearPassword" placeholder="Enter Password" required>
+        <div>
+            <button type="button" id="confirmClearBtn">Confirm</button>
+            <button type="button" id="cancelClearBtn">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Loading indicator -->
+    <div id="loadingIndicator" class="loading">
+        Generating PDF Report...
+    </div>
+    
+</div>
+
+<script>
+    // Initialize voucher codes and used vouchers
+    const voucherCodes = [
+        "uzVNx4RK4y23", "n5TdWnKfmF43", "Y25FiHxcWL6", "4sHTw6GFGUR", "MzLnx7XYdZS", "YHGQw2UTLLf", "4fAVvWe6ZrB", "6yXW8kTaW88", "sMqV4yPJp5G", "K467uzCStbF", "x24h6RWMGK23", "Br7WyCvQ53R", "2WUuM5yvkiP", "bVuf3LQD3Ux", "ebBj5uCt2qU", "yqiSWqKJ8dr", "NXaW7GX5EdX", "fpHZ6m82cJw", "36ctvjdP7PV", "e3N7pPaP7V8",
+"S27eBJTfPfH", "mk7UbTkcm2a3", "NbJMn66VKCz", "pDwKS7L6TL43", "NK8UmKNQEhh", "aRWP4vLBcec", "ZKXa4tibyGc", "24cdCTWwJQr", "NBSV5r46HaM", "4XRYf6QTwaV", "vAPPHfpyhzs", "drsAM8tuT8d", "72LdMj2M8pG", "zkV4vkMFCUQ", "BdjDD2sbaKv", "HaZvuNzpLUk", "CbNkxPWbxL33", "NTWN2ZYYiPR", "Pe5zuRnr2y3", "TA4W4ef28QX",
+"HEnAFKq525P", "BVXiRb5Neej", "jSjGnabffd4", "bKDHaU42azq", "WayyFz8z2ed", "TycpnaSmAVb", "YUVUivhF4Qz", "hFLA37ddGMi", "L26H8TkHCE5", "tinP8AJpCVJ", "vYA6skFmkJp", "hkNHA5ZmprH", "Uvpc3YrBECf", "vMuL8Yuww2H", "appkebZqUja", "BQ4HRafpPWq", "vWrcLZCUhbz", "AFETP2atec43", "BRGPZ4AUuY23", "KxMw3VzT5sY",
+"YVWNBLiMH6y", "43HDUVrDQBf", "qcDcZZQUi8q", "ywyUdSBnsXj", "W8kTfp2D5E73", "4tBesuatfhF", "VyaqDvfY3BH", "GvQqQ7PbHY7", "fDQkxHLM8tS", "TQMDVAaTbyS", "U8D2iadK8xW", "aELmdbrCNCT", "mKtCt3zrATv", "iLrd5PPaNsi", "Y6jKHMBuHm6", "yfWNuACzjvF", "V7PRwh2MrAN", "BZwuhBjNYdY", "NNJtQD4hDmh",
+"KcrQmpu7Yk23", "u33c4YQUa6e", "RuB5JnAZBTB", "4MKtTFFfyGj", "ESiRps8zBy6", "ytB4Vatpvuy", "QUTj5pGfwZ6", "kuUKTcEYuJW", "ArZTfcnqVb4", "F2fUTkJaeve", "uSBThFVw42Q", "8chDhaLVGz", "Yx72sc48tEQ", "ecff48SfBwv", "TZSKxr6veND", "6LGJBTyt6m4", "zHUNjjVtsYV", "nZaj6mHQkVM", "KbHiYQeu5jB",
+"LiyLWdCKVi43", "HjQ2RzefSJS", "6qVpzuYypna", "L4DkmZCGD843", "WmtDx4jCrKr", "qPyHyK8KzyS", "qqsZUbcRMQV", "fLuPhjpSXPt", "fyEyD2HUQbT", "mQH4zHR8UNc", "azPqJz4Ykde", "FYRamzMvmAx", "EZT5VuKuhxW", "pUAZB5Fm4323", "uwXWCcthxjS", "LWW5qTuTne33", "GjmcxbGBXSx", "yUHKUm5TriE", "GKwvCLr4z6R",
+"MMGqmctLht7", "wEUxufWfuNF", "75ntUzh4azL", "cD7P6N7hmZh", "kTAv5Xuk3NF", "MSZu2zAsZiL", "Pup6xRsvSTb", "3AdPxhA6xqs", "xB4FvnJaeGk", "WEY5D8VVZcY", "KRSEjNca8MC", "7mHSKYGyyQq", "FiNr3ZaZdWR", "kv3mp3BvG4E", "nzN2mJzUjVF", "XdR8kr2vPX5", "acnCKzdWvNu", "Pfw6zHHFND6", "M4ppy6RBvGZ",
+"UdD2feSY7Pk", "eeCU5ww8LD6", "x6UUySGMXfc", "MBGYNRHr5vW", "4iVbnNrMd4B", "ax4eR3L5JpQ", "YtsLeQWGfeZ", "UNcSraFvVK4", "zUEf8HUarYp", "6yfHmkuMu4C", "tUxQJRRcwJ3", "6J7q7nP6EZU", "GNKKqXej6zX", "WA57hwmifcn", "QZWend2h7Ns", "7MQ6kTYMWSq", "WBUWbnEmW2j", "e8KGAnBJACz", "ix72qzsPQNK",
+"M7qZKT5qGNM", "ZaYiDHmFSwW", "MwMVNSLTkzD", "ex4wbASy7JL", "Fnyctkuvyj53", "7exrDfVHJu", "fWcZ4YHnzMr", "PVAqcUq8BBs", "3sHwPihqCMb", "a6qtcpXRJ5K", "iTeDJzSd8hq", "V8pJJRS8jH53", "tpQhC5b7jE5", "ARa35d4CN2W", "bRYQ76x552Z", "8SjmRrGhefM", "NQwQvvQ7Yru", "6kR6jwvnT5f", "C2nvVvPXEat",
+"KxHWB6rSka3", "MQmbywxq3da", "7QRLWy7FFd4", "y7qwDp8yXZY", "cZGmJZ2uHer", "qnmqeDGE32Z", "R38K5zsMajd", "AYLvAVMLEC", "7DZ7m7rKq3R", "2fZjL4Kk2ef", "HfPV64EN7ZP", "jeqC8SjZsxB", "xTMJNxGJZts", "EseFFEzdrbk", "PCtnAbJejYT", "MF2un785pM3", "q7LxbiF6KKS", "XDCmxaWvYWN", "5pVzJTah8Pu",
+"yhv7VU7JwNY", "Qve2ZQcLna", "4XUYN335txa", "sMaktLnTwqk", "YiRzeKpfm5E", "aJB7DbdZuBG", "D5yeaRcw8UJ", "ypmN2eyAkF5", "Kv4iC8KUVU43", "t5tT48WK86n", "Xt43ArGTWM73", "XR2dvsVBTHA", "nAR4VxzpRYa", "7wWeJWcMRJK", "FWThZuGAB7q", "U2EKMEMvRUx", "WtnpsGZ87EX", "mQeL6yN5c3T", "CqhLZyRWsUs",
+"jTJBp4evQaE", "PR7mERuQ2ia3", "tWLUt87jVRU", "DetHxThqNp63", "ThxtAxM7qE83", "tehcB4FjnxB", "JuT7abVBYqE", "kUpVTu2wVaK", "2aY3Xf4ePzy", "2GyBPGNsiKQ", "aRzAhVAAnk8", "LsfxtCv4dY23", "L3zibwFBtVF", "Yb8nkqhGVVQ", "8x3ysUYTqcS", "jUtrhdvQkPJ", "CjR8D3wXvVM", "qvDdbnrqEjq", "MFanXe3rQQp",
+"Tnnp5tsAGFx", "PnXYAsyFKke", "AjcaxXhaVtR", "UFazXvh5Kxs", "xUbkhEzvSUD", "TfaShSuBqA", "CM7RV6wWJQ3", "EwpPQSdWwAJ", "MjBqQmJ4es83", "3rLS4DyqNFz", "ejhAzJSFuYe", "YZjT6AmXY3S", "xBRXNj6Vk3", "h2zWu36pEmR", "VYiKqqFFyU73", "eYQZffp4e8c", "5fNdmfQHC7x", "ii4mTj5ACZN", "mtaxiWCZiGV",
+"hF6U5HtZpcB", "RXFvhZULrWR", "6K3uxFKUjPw", "JytQB8yKUhH", "aCMS4m8Q7bS", "FUqW6fdyCLs", "LjJSRBGWuWX", "T6dsNZj4wUa", "LtL6EjFynUh", "baDy8x4wdBX", "QpMqNkbfxfB", "edvtke42bE6", "GAMWzJ6mbwB", "FGRvb8u64ua3", "zcarQVWqPy6", "dddZUi4rBcZ", "abRGybaU2iD", "xBAiijXCQCr", "Zjjbeam77uX",
+"Cw22WwhhuxX", "HPsuKs4yzcL", "iNt5nziMwJF", "DCfmaaWmhCT", "h2rv7xwjV3V", "kKa6kq2pWmA", "srCHDZZZsnA", "uKTXP4j4Gnu", "kuzuz3mhhrS", "ANvN27u7n8r", "HXWBEcPmEPi", "A2TCZJX7nkC", "MkpqiKjKii7", "LzAPAinxMjN", "ZEMZjXznhdz", "ZEWJvWxrSG3", "MUAvaXXcXrb", "vteKEVWyd6J", "ukrsaNVuDBJ",
+"NNFwerPd4f8", "JyGzY5Ltu67", "eeHbAJ7MbJG", "rmtMbBFpw5B", "qeNFVQqV7h6", "rBWbYJwfUWj", "Ccsn5j2bSWG", "VEn5kKamXwK", "zLyNp5phbxL", "w4T5YEJ3bk3", "KbvQQcZaP3L", "hdcjjkJCc5A", "Ab447GZSnK73", "MERqSmcFKma3", "jFm6JVrKwQ6", "pcPhrqCJfFv", "J8Yyq2QwbpT", "bMN6GPDBDQJ", "qdNS57kH2w5",
+"w8Y3fXcnjSa", "d8pcAqvJpVm", "jP4EG4kjCkh", "2SxVPD42ux", "ywsBKJPt6Uy", "aeZDStu4Vi6", "k8XTbK4qJUS", "4AFzqb4SUuu", "NttHrGZZVVd", "CXtbeTEAVZe", "ffMFtqT3PU8", "KXayFiHr3tC", "cKF7PEB2Yrh", "itGvjaviEFe", "jKpxmKeCrGp", "C5FR3yQQtLL", "uY8Fnv4u3H53", "RzVqUkHGd87", "KqsQYSWhvGh",
+"XAtdFTyAyMe", "4PEMQG662TT", "TQK8TzbZpET", "4QZ7ti4rG6A", "b2wkQYtaXPP", "w8LhZd2J73W", "bU2fZLiimvp", "NDnZPM7xH7r", "hMUycdZSmPX", "zW7Cbt27cz3", "Q48emsfVSpj", "BH7GpSSJcK5", "HTDjNEnwSxt", "fj5denfcrSL", "Hw2M3Yd4BWW", "7RRqJe4DtD83", "SQkaX3xZqwU", "VVnkaaQ5jx4", "5e3NV7SyeWF",
+"P7YHh5FENxV", "CQaiCnnUjKP", "QN7adHyrXtp", "yr8EH7fNA5m", "Fw6Gbr2vSfN", "ShWM8w3nMX83", "5VuDdhhsfh7", "AnvFNXiffmR", "LCFXSzJQFQB", "s5n7E3BWWkb", "vvabTEqzMy8", "WH6YjnxpBHM", "RfDfb2ME7j63", "TkXjAECNQfY", "pKiHAcG43yJ", "d4FJHSSXtAj", "hxYBEhad7c8", "UudXSR3eHWM", "tBWJpA6UE7d",
+"j8ipyGA2u7f", "zTvnhst48iL", "8SuZwkieA5C", "5TCuzCAAFpx", "3dEJqjKZyvU", "vbw5H8s8SW7", "AHpTSMeRyWe", "m5fcDbxvvyN", "tAqxJ8psKnz", "3GFNEeJMJQr", "d5vrBpL5aTK", "QDCTnWbE547", "4dCRcuxbnDt", "MGqMbBNpq3h", "RzqVdpuJr3f", "JVGrDVYYU7N", "nDb6vQMaTsF", "BP4htbBU77V", "V2EiBWcVXrf",
+"saC5MVtbLHC", "Js5XPQ5zZRK", "RYjZWXPKr4J", "iPiCsi77Jn73", "twY8TLPNfmR", "YYjGhTEfQvZ", "mEPpskZdYHM", "McYqsTmdfjv", "U8BeqJy7VFn", "VEbTrpEwNZh", "jEd8DX5cZfu", "JamM4NEvebf", "aidp3uBdR6j", "pErtLtqz8X4", "x4BuCwYjEF23", "NeGzPGtBXey", "6zMwy2T3je5", "ijQAfzUAM5s", "JL2e6XDbVFC",
+"kVffHmh4WbP", "6FeSYUWnzUm", "Dex4W3CbQ5Q", "PpCcwp5AZnU", "L7GyvZBQs4a3", "rHMxDmZ8Fd63", "ZKYMy6iDBKW", "p33udzYAjbF", "ePYUR2qdjdH", "ALqJmYvmjGn", "CdcRu8cnxrz", "zuYpQeb5bpj", "4kEDRM4Ae8Q", "KxzG28Bht4b", "XB4Mn4ZitHF", "tJSWcXFasUM", "XwqTKxi4xWE", "iS3fYiysnmi", "cyFwXWfmJBJ",
+"xNvTrNjkma6", "WrAA7BVpBFn", "4SyT4ZHQwpf", "JvKTzv8NUwz", "sNc4muBAMVQ", "nF4aPbLLL2Q", "2c53mBHCyC6", "VeW6Gd5ZHc8", "ciNWKTMBUxH", "8XpEmUBYEvV", "dDx5QzjZJmb", "ERwhfZj2QxY", "AqVbFvMJZrp", "54Ux5zDE3Kd", "vN7CyQ76vUF", "fCmfL4RrYcZ", "D6hSYUTipE83", "eVD7dq2zB683", "534ZVYrueBD",
+"7QE5VNwNuFq", "hv7MV6sWFmR", "KrmyG72dQhX", "FGXmETNdN74", "wPRFYdwHj8A", "zST2fpy5tQ3", "AvbBwqSAEpm", "evfjyDtyjnq", "KsZPF6YDMCC", "LpJULxqQmaX", "nRNkTEHZm7b", "5PAFT36UAiG", "eYJmHLncnAd", "GkXLDkkfBqV", "H6M4nuzxNWJ", "MUc7nRa7Az3", "5EaZAWKma6L", "LxvqD5yNTm43", "T8Amc4D4SEk",
+"P7mKYye2CRx", "sdNL7AWD5fs", "pPnAJVQNJGD", "iZ3yFtmAQpa3", "MXQYt7PeW3B", "UCF2syEsPf73", "qvziZFEzrth", "REvxLQDe3P7", "pWQmAHLi6Aa", "XwXNG8Dexnw", "TdGQiCUMhEQ", "3curpV7UacA", "Vx53EukC2qr", "ndPsJ8GwnSz", "Mdk2dQ4fvBv", "zjemuNWfLvJ", "jyQGxwnM76V", "w7sv4GGzJmq", "vQCVm8pdNiz",
+"EfBSHZmYEE3", "ufznayHaasN", "VFnDyPyRBsR", "NLu3HuwDwrY", "AAPmcRshTYb", "ay3KJRTMxei", "8pt2vPzhysR", "NqR5hJD2Cdm", "h8XkG4zbHYe", "VFPjQXWZGqL", "uxfiPbvRBXr", "U26DrLTRnBd", "EZfwHvQTLRf", "bYMFyEMiBi53", "j5rPTwSSZnV", "decZEEQFLcr", "TtsXLB2w6u7", "6rieWtAPmmB", "incS6WTr5tA",
+"nnUUreWdxEb", "xw45p7ZBrSk", "TZbKGapkq8G"
+    ];
+    const rowsPerPage = 20; // Number of rows per page
+let currentPage = 1;    // Current page number
+
+    let usedVouchers = JSON.parse(localStorage.getItem('usedVouchers')) || [];
+    const tableBody = document.querySelector('#voucherTable tbody');
+
+    // Name auto-capitalization
+    document.getElementById("studentName").addEventListener("input", function() {
+        this.value = this.value
+            .toLowerCase()
+            .split(" ")
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ");
+    });
+
+    // Populate table on page load
+    // Modify your populateTable function to include checkboxes
+// Modify your populateTable function to include hidden checkboxes
+function populateTable() {
+    let storedData = JSON.parse(localStorage.getItem('voucherData')) || [];
+    storedData.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
+    tableBody.innerHTML = '';
+
+    if (storedData.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No voucher data available</td></tr>';
+        return;
+    }
+
+    storedData.forEach((data, index) => {
+        const rowNumber = storedData.length - index;
+        const row = `<tr>
+            <td class="select-cell"><input type="checkbox" class="delete-checkbox" data-index="${index}"></td>
+            <td>${rowNumber}</td>
+            <td>${data.dateTime}</td>
+            <td>${data.name}</td>
+            <td>${data.section}</td>
+            <td>${data.voucherCode}</td>
+        </tr>`;
+        tableBody.insertAdjacentHTML('beforeend', row);
+    });
+
+    // Always show first page when new voucher is added
+    currentPage = 1;
+    updateTableForCurrentPage(); // Call to update pagination
+}
+
+let deleteMode = false;
+
+document.getElementById('deleteBtn').addEventListener('click', function() {
+    deleteMode = true;
+    document.querySelector('.delete-controls').style.display = 'flex';
+    document.getElementById('voucherTable').classList.add('show-delete-mode');
+    this.style.display = 'none'; // Hide the main delete button
+});
+
+document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
+    exitDeleteMode();
+});
+
+document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+    const checkboxes = document.querySelectorAll('.delete-checkbox:checked');
+    
+    if (checkboxes.length === 0) {
+        alert('Please select at least one record to delete.');
+        return;
+    }
+
+    const password = prompt('Enter password to confirm deletion:');
+    if (password !== "Admin12345") {
+        alert('Incorrect password. Deletion cancelled.');
+        return;
+    }
+
+    const confirmDelete = confirm(`Are you sure you want to delete ${checkboxes.length} selected record(s)?`);
+    if (!confirmDelete) return;
+
+    // Get indexes of items to delete
+    const indexesToDelete = Array.from(checkboxes)
+        .map(cb => parseInt(cb.dataset.index))
+        .sort((a, b) => b - a);
+    
+    // Get current data
+    let storedData = JSON.parse(localStorage.getItem('voucherData')) || [];
+    
+    // Remove selected items from DOM immediately
+    checkboxes.forEach(checkbox => {
+        checkbox.closest('tr').remove();
+    });
+    
+    // Remove selected items from storage
+    indexesToDelete.forEach(index => {
+        const deletedVoucher = storedData[index].voucherCode;
+        usedVouchers = usedVouchers.filter(code => code !== deletedVoucher);
+        storedData.splice(index, 1);
+    });
+    
+    // Save changes
+    localStorage.setItem('voucherData', JSON.stringify(storedData));
+    localStorage.setItem('usedVouchers', JSON.stringify(usedVouchers));
+    
+    exitDeleteMode();
+    
+    // Update the table numbering after deletion
+    updateRowNumbers();
+    populateTable(); 
+    alert(`${checkboxes.length} record(s) deleted successfully.`);
+});
+function updateRowNumbers() {
+    const rows = document.querySelectorAll('#voucherTable tbody tr');
+    const totalRows = rows.length;
+    
+    rows.forEach((row, index) => {
+        // Update the row number (second column)
+        row.cells[1].textContent = totalRows - index;
+    });
+}
+
+function exitDeleteMode() {
+    deleteMode = false;
+    document.getElementById('deleteBtn').style.display = 'block';
+    document.querySelector('.delete-controls').style.display = 'none';
+    document.getElementById('voucherTable').classList.remove('show-delete-mode');
+    
+    // Uncheck all checkboxes
+    document.querySelectorAll('.delete-checkbox').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+}
+
+// Click outside to cancel delete mode
+// Update the click-away event listener to only exit when clicking outside the container
+document.addEventListener('click', function(e) {
+    if (!deleteMode) return;
+    
+    // Check if click is inside the table or delete controls
+    const isClickInsideTable = e.target.closest('#voucherTable');
+    const isClickInDeleteControls = e.target.closest('.delete-controls');
+    const isClickOnDeleteBtn = e.target.closest('#deleteBtn');
+    
+    // Only exit delete mode if clicking completely outside relevant elements
+    if (!isClickInsideTable && !isClickInDeleteControls && !isClickOnDeleteBtn) {
+        exitDeleteMode();
+    }
+});
+
+
+document.getElementById('voucherForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const studentNameInput = document.getElementById('studentName').value.trim();
+    const studentSection = document.getElementById('section').value.trim();
+    
+    // Validation
+    if (!studentNameInput.includes(" ")) {
+        alert("Please enter your full name (First and Last name).");
+        return;
+    }
+
+    if (studentNameInput.length < 5) {
+        alert("Name must be at least 5 characters long.");
+        return;
+    }
+
+    if (studentSection === "") {
+        alert("Please select a section.");
+        return;
+    }
+
+    // Optimized voucher code selection
+    const availableVouchers = voucherCodes.filter(code => !usedVouchers.includes(code));
+    
+    if (availableVouchers.length === 0) {
+        alert("No more voucher codes available.");
+        return;
+    }
+
+    // Get random voucher code from available ones
+    const randomIndex = Math.floor(Math.random() * availableVouchers.length);
+    const voucherCode = availableVouchers[randomIndex];
+    usedVouchers.push(voucherCode);
+
+    // Create and store new voucher data
+    const dateTime = new Date().toLocaleString();
+    const newVoucherData = { 
+        dateTime, 
+        name: studentNameInput,
+        section: studentSection, 
+        voucherCode 
+    };
+
+    let storedData = JSON.parse(localStorage.getItem('voucherData')) || [];
+    storedData.unshift(newVoucherData); // Add new voucher to beginning
+    
+    // Save to localStorage
+    localStorage.setItem('voucherData', JSON.stringify(storedData));
+    localStorage.setItem('usedVouchers', JSON.stringify(usedVouchers));
+
+    // Refresh the table display
+    populateTable();
+    document.getElementById('voucherForm').reset();
+});
+
+// Initialize table on page load
+document.addEventListener('DOMContentLoaded', function() {
+    populateTable();
+});
+
+    document.getElementById('downloadBtn').addEventListener('click', function () {
+    // Show loading indicator for Word document
+    const wordLoadingIndicator = document.createElement("div");
+    wordLoadingIndicator.className = "wordload";
+    wordLoadingIndicator.textContent = "Generating Word Document...";
+    wordLoadingIndicator.style.position = "fixed";
+    wordLoadingIndicator.style.top = "50%";
+    wordLoadingIndicator.style.left = "50%";
+    wordLoadingIndicator.style.transform = "translate(-50%, -50%)";
+    wordLoadingIndicator.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+    wordLoadingIndicator.style.color = "white";
+    wordLoadingIndicator.style.padding = "10px 20px";
+    wordLoadingIndicator.style.borderRadius = "5px";
+    wordLoadingIndicator.style.zIndex = "1000";
+    document.body.appendChild(wordLoadingIndicator);
+
+    // Get all data from localStorage
+    const storedData = JSON.parse(localStorage.getItem('voucherData')) || [];
+    
+    // Create a table with ALL data (not just visible rows)
+    let tableHTML = `
+        <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Date & Time</th>
+                    <th>Name</th>
+                    <th>Section</th>
+                    <th>Voucher Code</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    // Add all rows (sorted by date descending)
+    storedData.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime)).forEach((data, index) => {
+        tableHTML += `
+            <tr>
+                <td>${storedData.length - index}</td>
+                <td>${data.dateTime}</td>
+                <td>${data.name}</td>
+                <td>${data.section}</td>
+                <td>${data.voucherCode}</td>
+            </tr>
+        `;
+    });
+    
+    tableHTML += `</tbody></table>`;
+
+    const title = `<h1 style="text-align: center;">ECC Student Portal Voucher Usage</h1>`;
+    const style = `
+        <style>
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { padding: 8px; text-align: center; border: 1px solid #ddd; }
+            th { background-color: #1E3A8A; color: white; }
+            tr:nth-child(even) { background-color: #f2f2f2; }
+        </style>
+    `;
+
+    // Combine the title, style, and table into a single HTML string
+    const htmlContent = style + title + tableHTML;
+
+    // Create a Blob with the HTML content
+    const blob = new Blob([htmlContent], { type: "application/msword" });
+
+    // Create a link element to trigger the download
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "ECC_Student_Portal_Voucher_Usage.doc";
+
+    // Add a delay before starting the download
+    setTimeout(() => {
+        // Start the download
+        link.click();
+
+        // Remove the loading indicator after the download starts
+        document.body.removeChild(wordLoadingIndicator);
+    }, 1000);
+});
+    // Print function
+    document.getElementById('printBtn').addEventListener('click', function () {
+        const printWindow = window.open('', '', 'height=600,width=800');
+        const title = `<h1 style="text-align: center; font-family: Arial, sans-serif;">ECC Student Portal Voucher Usage</h1>`;
+        const printContent = `
+            <html>
+                <head>
+                    <title>Print Vouchers</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; text-align: center; }
+                        table { width: 80%; margin: 20px auto; border-collapse: collapse; }
+                        th, td { padding: 10px; text-align: center; border: 1px solid #ddd; }
+                        th { background-color: #1E3A8A; color: white; }
+                        tr:nth-child(even) { background-color: #f2f2f2; }
+                    </style>
+                </head>
+                <body>
+                    ${title}
+                    ${document.getElementById("voucherTable").outerHTML}
+                </body>
+            </html>
+        `;
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        printWindow.print();
+    });
+
+    // Password form handling for clearing table
+    document.getElementById('clearBtn').addEventListener('click', function () {
+        document.getElementById('passwordForm').style.display = 'block';
+    });
+
+    document.getElementById('confirmClearBtn').addEventListener('click', function () {
+        const enteredPassword = document.getElementById('clearPassword').value.trim();
+
+        if (enteredPassword === "Admin12345") {
+            const confirmClear = confirm("Are you sure you want to clear all voucher data? This cannot be undone.");
+            if (confirmClear) {
+                tableBody.innerHTML = '';
+                localStorage.removeItem('voucherData');
+                localStorage.removeItem('usedVouchers');
+                usedVouchers = [];
+            }
+        } else {
+            alert("Incorrect password");
+        }
+        document.getElementById('passwordForm').style.display = 'none';
+        document.getElementById('clearPassword').value = '';
+    });
+
+    document.getElementById('cancelClearBtn').addEventListener('click', function () {
+        document.getElementById('passwordForm').style.display = 'none';
+        document.getElementById('clearPassword').value = '';
+    });
+
+    document.getElementById("downloadPdfBtn").addEventListener("click", function () {
+    const storedData = JSON.parse(localStorage.getItem('voucherData')) || [];
+
+    if (storedData.length === 0) {
+    doc.text("No data available to generate the report.", 10, 30);
+    doc.save("ECC_VoucherUsage_Report.pdf");
+    document.getElementById('loadingIndicator').style.display = 'none';
+    return;
+}
+
+    // Show loading indicator
+    document.getElementById('loadingIndicator').style.display = 'flex';
+
+    // Use setTimeout to ensure the loading indicator shows before heavy processing
+    setTimeout(() => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Title
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(26);
+        const pageWidth = doc.internal.pageSize.getWidth();
+        doc.text("ECC Voucher Usage Report", pageWidth / 2, 20, { align: "center" });
+
+        // Collect Data Usage by Section
+        const sectionUsage = {};
+        storedData.forEach(entry => {
+            sectionUsage[entry.section] = (sectionUsage[entry.section] || 0) + 1;
+        });
+
+        // Define section order
+        const sectionOrder = [
+            "7-Paul", "8-Jude", "9-Abraham", "9-Isaac",
+            "10-Luther", "11-HUMMS", "11-ABM", "11-STEM",
+            "12-HUMMS", "12-ABM", "12-STEM"
+        ];
+
+        // Filter & sort labels based on defined order
+        const labels = sectionOrder.filter(section => section in sectionUsage);
+        const data = labels.map(label => sectionUsage[label]);
+
+        // Create a visible canvas (temporarily)
+        const canvas = document.createElement("canvas");
+        canvas.id = "chartCanvas";
+        canvas.width = 600;
+        canvas.height = 400;
+        canvas.style.position = "fixed";
+        canvas.style.left = "-9999px"; // Hide off-screen
+        document.body.appendChild(canvas);
+
+        const ctx = canvas.getContext("2d");
+
+        // Destroy previous chart if it exists
+        if (window.myChart) {
+            window.myChart.destroy();
+        }
+
+        // Create new chart
+        window.myChart = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Voucher Usage",
+                    data: data,
+                    backgroundColor: "royalblue",
+                    borderColor: "darkblue",
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: {
+                            color: 'black',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Voucher Usage by Section',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: 'black',
+                            font: {
+                                size: 12,
+                                weight: 'bold',
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: 'black',
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            },
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+
+        // Wait for chart to render completely
+        setTimeout(() => {
+            // Convert canvas to image
+            const imgData = canvas.toDataURL("image/png");
+            
+            // Add image to PDF (adjust dimensions as needed)
+            doc.addImage(imgData, "PNG", 15, 40, 180, 120);
+            
+            // Save PDF
+            doc.save("ECC_VoucherUsage_Report.pdf");
+            
+            // Remove temporary canvas
+            document.body.removeChild(canvas);
+            
+            // Hide loading indicator
+            document.getElementById('loadingIndicator').style.display = 'none';
+        }, 500);
+    }, 100);
+});
+
+
+
+// Function to update table rows based on current page
+
+    function updateTableForCurrentPage() {
+    const rows = document.querySelectorAll("#voucherTable tbody tr");
+    const totalRows = rows.length;
+    const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+    // Hide all rows first
+    rows.forEach(row => row.style.display = "none");
+
+    // Calculate start and end index for current page
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const endIndex = Math.min(startIndex + rowsPerPage, totalRows);
+
+    // Show only rows for current page
+    for (let i = startIndex; i < endIndex; i++) {
+        if (rows[i]) { // Safety check in case row doesn't exist
+            rows[i].style.display = "";
+        }
+    }
+
+    // Update page info text
+    document.getElementById("pageInfo").textContent = `Page ${currentPage} of ${totalPages}`;
+
+    // Disable "Previous" button if on first page
+    document.getElementById("prevPage").disabled = currentPage === 1;
+
+    // Disable "Next" button if on last page
+    document.getElementById("nextPage").disabled = currentPage === totalPages || totalPages === 0;
+}
+
+// Event listeners for pagination buttons
+document.getElementById("prevPage").addEventListener("click", () => {
+    if (currentPage > 1) {
+        currentPage--;
+        updateTableForCurrentPage();
+    }
+});
+
+document.getElementById("nextPage").addEventListener("click", () => {
+    const totalRows = document.querySelectorAll("#voucherTable tbody tr").length;
+    const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+    if (currentPage < totalPages) {
+        currentPage++;
+        updateTableForCurrentPage();
+    }
+});
+
+
+</script>
+</body>
+</html>

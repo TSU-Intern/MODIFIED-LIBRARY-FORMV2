@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrowers Form</title>
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('bg.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            background-color: royalblue;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
+            font-size: 15px;
+        }
+        .header-container {
+            background-color: rgba(0, 0, 0, 0.829);
+            width: 100%;
+            padding: 5px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 10px;
+            box-sizing: border-box;
+            color: rgb(255, 255, 255);
+        }
+        .header-container img {
+            width: 42px;
+            height: 42px;
+        }
+        .header-container span {
+            font-size: 30px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .header-container nav {
+            margin-left: auto;
+            display: flex;
+            gap: 15px;
+        }
+        .header-container nav a {
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            font-size: 15px;
+            padding: 8px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .header-container nav a:hover {
+            background-color: rgb(228, 41, 56);
+        }
+        .container {
+            text-align: center;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            max-width: 80%;
+            width: 1200px;
+            margin-top: 80px;
+        }
+        .header {
+            background: linear-gradient(to right, rgb(16, 17, 22), #4169e1);
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            font-size: 24px;
+            margin-bottom: 20px;
+            padding: 10px;
+        }
+        .form-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        label {
+            font-weight: bold;
+            color: black;
+            width: auto;
+            text-align: right;
+            font-size: 15px;
+        }
+        input, select {
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            color: black;
+            width: 200px;
+            font-size: 15px;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        button {
+            background-color: royalblue;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            padding: 6px 15px;
+            font-size: 15px;
+            border: none;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: darkblue;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: linear-gradient(to bottom, #ffffff, #f0f0f0);
+            color: black;
+            border-radius: 10px;
+            overflow: hidden;
+            padding: 10px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            text-align: center;
+            padding: 5px;
+            font-size: 15px;
+        }
+        th {
+            background-color: royalblue;
+            color: white;
+        }
+        .returned {
+            background-color: red !important;
+            color: white;
+            pointer-events: none;
+            cursor: not-allowed;
+        }
+        @media print {
+        body {
+            font-size: 12px; /* Adjust font size for printing */
+            color: black; /* Ensure print-friendly text color */
+            background: none; /* Remove background images */
+        }
+        .header-container, .buttons {
+            display: none; /* Hide unnecessary elements */
+        }
+        .container {
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            box-shadow: none; /* Remove shadow for printing */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 5px;
+            font-size: 12px;
+        }
+        tr {
+            page-break-inside: avoid; /* Prevent rows from splitting across pages */
+        }
+    }
+    @media print {
+        body {
+            font-size: 12px;
+            color: black;
+            background: none;
+            margin: 0;
+        }
+        .header-container, .buttons, form {
+            display: none; /* Hide unnecessary elements */
+        }
+        .container {
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            box-shadow: none; /* Remove shadow for printing */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 5px;
+            font-size: 12px;
+        }
+        tr {
+            page-break-inside: avoid; /* Prevent rows from splitting across pages */
+        }
+    }
+    </style>
+</head>
+<body>
+
+<!-- Navigation Menu -->
+<div class="header-container">
+    <img src="ecclogo.png" alt="ECC Logo">
+    <span>ECUMENICAL CHRISTIAN COLLEGE</span>
+    <nav>
+        <a href="LogForm.html">LOG FORM</a>
+        <a href="voucher.html">ECC PORTAL</a>
+        <a href="BorrowersForm.html">BORROWERS FORM</a>
+    </nav>
+</div>
+
+<!-- Main Content -->
+<div class="container">
+    <div class="header">BORROWERS FORM</div>
+
+    <form id="borrowersForm">
+        <!-- Latest fields at the top -->
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" placeholder="Enter Name" required>
+
+            <label for="section">Section:</label>
+            <select id="section" required>
+                <option value="">Select Section</option>
+                <option value="7-Paul">7-Paul</option>
+                <option value="8-Jude">8-Jude</option>
+                <option value="9-Abraham">9-Abraham</option>
+                <option value="9-Isaac">9-Isaac</option>
+                <option value="10-Luther">10-Luther</option>
+                <option value="11-HUMMS">11-HUMMS</option>
+                <option value="11-ABM">11-ABM</option>
+                <option value="11-STEM">11-STEM</option>
+                <option value="12-HUMMS">12-HUMMS</option>
+                <option value="12-ABM">12-ABM</option>
+                <option value="12-STEM">12-STEM</option>
+            </select>
+        </div>
+        
+        <!-- Book and Account fields -->
+        <div class="form-group">
+            <label for="bookTitle">Title of the Book(s):</label>
+            <input type="text" id="bookTitle" placeholder="Enter Book Title(s)" required>
+
+            <label for="accountNo">Account No.:</label>
+            <input type="text" id="accountNo" placeholder="Enter Account No." required>
+        </div>
+
+        <div class="buttons">
+            <button type="button" onclick="addBorrower()">Submit</button>
+            <button type="button" onclick="confirmClear()">Clear</button>
+            <button type="button" onclick="window.print()">Print</button>
+            <button type="button" onclick="downloadBorrowers()">Download</button>
+        </div>
+    </form>
+
+    <table id="borrowersTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Section</th>
+                <th>Title of the Book(s)</th>
+                <th>Account No.</th>
+                <th>Date Borrowed</th>
+                <th>Return Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="borrowersTableBody">
+            <!-- Dynamic rows will appear here -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const password = "Admin12345"; // Set the password for both buttons
+    const tableBody = document.getElementById("borrowersTableBody");
+
+    // Load data from localStorage
+    window.onload = function() {
+        const storedData = localStorage.getItem("borrowersData");
+        if (storedData) {
+            const borrowersData = JSON.parse(storedData);
+            borrowersData.forEach(borrower => addRowToTable(borrower));
+        }
+    };
+
+    function addBorrower() {
+        const name = document.getElementById("name").value.trim();
+        const section = document.getElementById("section").value;
+        const bookTitle = document.getElementById("bookTitle").value.trim();
+        const accountNo = document.getElementById("accountNo").value.trim();
+
+        if (!name || !section || !bookTitle || !accountNo) {
+            alert("Please fill out all fields.");
+            return;
+        }
+
+        const dateBorrowed = new Date().toLocaleDateString();
+        const newRow = {
+            name,
+            section,
+            bookTitle,
+            accountNo,
+            dateBorrowed,
+            returnDate: ""
+        };
+
+        addRowToTable(newRow);
+        saveDataToLocalStorage();
+        document.getElementById("borrowersForm").reset();
+    }
+
+    function addRowToTable(rowData) {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td contenteditable="true">${rowData.name}</td>
+            <td contenteditable="true">${rowData.section}</td>
+            <td contenteditable="true">${rowData.bookTitle}</td>
+            <td contenteditable="true">${rowData.accountNo}</td>
+            <td>${rowData.dateBorrowed}</td>
+            <td id="returnDate">${rowData.returnDate}</td>
+            <td>
+                <button onclick="markAsReturned(this)">Return</button>
+            </td>
+        `;
+        tableBody.appendChild(row);
+
+        // Make the cells editable for name, section, book title, and account number
+        row.querySelectorAll("[contenteditable]").forEach(cell => {
+            cell.addEventListener("blur", saveDataToLocalStorage); // Save changes on losing focus
+        });
+    }
+
+    function markAsReturned(button) {
+        promptPassword("Enter password to mark as returned:").then(passwordEntered => {
+            if (passwordEntered === password) {
+                const row = button.parentElement.parentElement;
+                const returnDateCell = row.querySelector("#returnDate");
+                returnDateCell.textContent = new Date().toLocaleDateString();
+                button.textContent = "Returned";
+                button.classList.add("returned");
+
+                // Save updated data to localStorage
+                saveDataToLocalStorage();
+            } else {
+                alert("Incorrect password. Try again.");
+            }
+        });
+    }
+
+    function saveDataToLocalStorage() {
+        const rows = Array.from(tableBody.rows);
+        const borrowersData = rows.map(row => ({
+            name: row.cells[0].textContent,
+            section: row.cells[1].textContent,
+            bookTitle: row.cells[2].textContent,
+            accountNo: row.cells[3].textContent,
+            dateBorrowed: row.cells[4].textContent,
+            returnDate: row.cells[5].textContent
+        }));
+        localStorage.setItem("borrowersData", JSON.stringify(borrowersData));
+    }
+
+    function confirmClear() {
+        promptPassword("Enter password to clear all data:").then(passwordEntered => {
+            if (passwordEntered === password) {
+                if (confirm("Are you sure you want to clear all data?")) {
+                    tableBody.innerHTML = "";
+                    localStorage.removeItem("borrowersData"); // Clear data from localStorage
+                }
+            } else {
+                alert("Incorrect password. Data was not cleared.");
+            }
+        });
+    }
+
+    function downloadBorrowers() {
+        const table = document.getElementById("borrowersTable");
+        let csvContent = "";
+        for (let row of table.rows) {
+            const rowData = Array.from(row.cells).map(cell => cell.textContent).join(",");
+            csvContent += rowData + "\n";
+        }
+
+        const blob = new Blob([csvContent], { type: "text/csv" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "borrowers_data.csv";
+        link.click();
+    }
+
+    // Custom promptPassword function that uses a password input
+    function promptPassword(message) {
+        return new Promise(resolve => {
+            const passwordInput = document.createElement("input");
+            passwordInput.type = "password"; // This makes the input masked as '****'
+            passwordInput.placeholder = "Enter password";
+            
+            const promptContainer = document.createElement("div");
+            promptContainer.innerHTML = `<p>${message}</p>`;
+            promptContainer.appendChild(passwordInput);
+
+            document.body.appendChild(promptContainer);
+            passwordInput.focus();
+
+            passwordInput.addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    resolve(passwordInput.value);
+                    document.body.removeChild(promptContainer); // Remove prompt after submission
+                }
+            });
+        });
+    }
+</script>
+
+</body>
+</html>
