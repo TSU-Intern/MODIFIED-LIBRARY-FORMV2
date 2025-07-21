@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECC Student Portal Voucher Usage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('bg.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            background-color: royalblue;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
+            font-size: 15px;
+        }
+        .header-container {
+            background-color: rgba(0, 0, 0, 0.829);
+            width: 100%;
+            padding: 5px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 10px;
+            box-sizing: border-box;
+            color: rgb(255, 255, 255);
+        }
+        .header-container img {
+            width: 42px;
+            height: 42px;
+        }
+        .header-container span {
+            font-size: 30px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .header-container nav {
+            margin-left: auto;
+            display: flex;
+            gap: 15px;
+        }
+        .header-container nav a {
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            font-size: 15px;
+            padding: 8px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .header-container nav a:hover {
+            background-color: rgb(228, 41, 56);
+        }
+        .container {
+            text-align: center;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            max-width: 80%;
+            width: 1200px;
+            margin-top: 20px; /* Reduced space */
+        }
+        .header {
+            background: linear-gradient(to right, rgb(16, 17, 22), #4169e1);
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            font-size: 24px;
+            margin-bottom: 3px; /* Reduced space */
+            padding: 10px;
+        }
+        .form-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        label {
+            font-weight: bold;
+            color: black;
+            width: auto;
+            text-align: right;
+            font-size: 15px;
+        }
+        input, select {
+            text-transform: capitalize;
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            color: black;
+            width: 200px;
+            font-size: 15px;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px; /* Space between table and buttons */
+        }
+        button {
+            background-color: royalblue;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            padding: 6px 15px;
+            font-size: 15px;
+            border: none;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: darkblue;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 3px; /* Reduced space between table and title */
+            background: linear-gradient(to bottom, #ffffff, #f0f0f0);
+            color: black;
+            border-radius: 10px;
+            overflow: hidden;
+            padding: 10px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            text-align: center;
+            padding: 5px;
+            font-size: 15px;
+        }
+        th {
+            background-color: royalblue;
+            color: white;
+        }
+        .returned {
+            background-color: red !important;
+            color: white;
+            pointer-events: none;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation Menu -->
+<div class="header-container">
+    <img src="ecclogo.png" alt="ECC Logo">
+    <span>ECUMENICAL CHRISTIAN COLLEGE</span>
+    <nav>
+        <a href="LogForm.html">LOG FORM</a>
+        <a href="voucher.html">ECC PORTAL</a>
+        <a href="BorrowersForm.html">BORROWERS FORM</a>
+    </nav>
+</div>
+
+<h1>ECC Student Portal Voucher Usage</h1>
+<div class="container">
+    <!-- Form moved to the top -->
+    <form id="voucherForm">
+        <div class="form-group">
+            <label for="studentName">Name:</label>
+            <input type="text" id="studentName" placeholder="Enter Name" required>
+
+            <label for="section">Section:</label>
+            <select id="section" required>
+                <option value="">Select Section</option>
+                <option value="7-Paul">7-Paul</option>
+                <option value="8-Jude">8-Jude</option>
+                <option value="9-Abraham">9-Abraham</option>
+                <option value="9-Isaac">9-Isaac</option>
+                <option value="10-Luther">10-Luther</option>
+                <option value="11-HUMMS">11-HUMMS</option>
+                <option value="11-ABM">11-ABM</option>
+                <option value="11-STEM">11-STEM</option>
+                <option value="12-HUMMS">12-HUMMS</option>
+                <option value="12-ABM">12-ABM</option>
+                <option value="12-STEM">12-STEM</option>
+            </select>
+        </div>
+<br>
+        <div class="buttons">
+            <button type="submit">Generate Voucher</button>
+            <button type="button" class="download-button" id="downloadBtn">Download as Word</button>
+            <button type="button" class="print-button" id="printBtn">Print</button>
+            <button type="button" id="clearBtn">Clear Table</button>
+        </div>
+    </form>
+<br>
+    <!-- Table section -->
+    <table id="voucherTable">
+        <thead>
+            <tr>
+                <th>Date & Time</th>
+                <th>Name</th>
+                <th>Section</th>
+                <th>Voucher Code</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Generated voucher rows will appear here -->
+        </tbody>
+    </table>
+
+    <!-- Separate Password Form for clearing table -->
+    <div id="passwordForm" class="password-form" style="display: none;">
+        <label for="clearPassword">Enter Password to Clear Table:</label>
+        <input type="password" id="clearPassword" placeholder="Enter Password" required>
+        <button type="button" id="confirmClearBtn">Confirm</button>
+        <button type="button" id="cancelClearBtn">Cancel</button>
+    </div>
+</div>
+
+<script>
+    const voucherCodes = [
+"fwS5fzbnDER", "BCfTqUzEFwD", "eJW4yHYTGQu", "qVCJrNfxieC", "8bQC6Ghpkv6", "PmUzW6zZYaW", "xZ3sRu5JSBf", "fswPuSN4FbP", "5L37mbBpWP73", "7NHwVR76HnP", "SZNXqiFc6va", "4D4hywra58H", "mqrE3kYbEZL", "zVXNxmkiYdx", "nir8J6WrLbR", "QVc6cuy8W673", "3KDqUfnSBww", "Rcuyie2riMS", "euYquzBXusG", "Qm8b6ZqDwT23",
+"xy4j3mw3Kfy", "46sapHF5wH5", "E7UqDnErGEJ", "56WrZNMGyKy", "TEHiQQ47h753", "UYEy4HsMdwY", "FvX4kciCjtD", "3muuqawYxH43", "m5YRhtATXub", "M5YqizJnNiu", "x3zdbqwt7tT", "RButzxWKjsj", "6KNVMtpxQaa", "5rrHqenNdpv", "hRK4YGDy8Ft", "HVmw7U3bPnj", "4w86eMJJZqs", "PChtFzZLAkG", "b6AH8UZKvVJ", "Db8dUMshMY4",
+"jJYmW76smXr", "eqxFeV5QmA7", "whrHNNeFp3n", "fHvW7FzQiyK", "v6wvjWhC6FT", "eLWFtre4kt", "GbPiF4QEPx83", "6DVMXXetnFA", "4bnucthrY6S", "35JTUXfpU7L", "UakRZckyzER", "aEyiRDeh3Lz", "6fzqTkTFT2q", "5XNVxqmCNxi", "iGk2MzC7ALx", "zpM865HdJWe", "waPtaKeTm4V", "cJMLBRR5zKc", "qFBGvUSy8BF", "2Zj87EXGrmr",
+"r5KSPF2xF6f", "edQW8WDmTpp", "KUCFVVrqmWe", "YstJuj77BfM", "MykvqvkLKuQ", "kSHCCGzwxiy", "3SR7A3sLeDa", "q5F3a4eEVXA", "YpdQtQhjQnV", "keZRGBqBjMu", "VdrnbUN3QvQ", "QvFzrzszP2F", "tWuRY2TzL3U", "dkdQCteqRqt", "sJPMsf4Gap", "dww8JmZUdnW", "x3BbtqzcG3w", "sWpGpApCqMN", "55Ud4A6upAb", "uer8HnnuCAk",
+"Wc6yKkNUXT73", "vWBnBJ8nddP", "EaN5MaGHvs23", "4BVpG2dzWG83", "nVYV3tLfavj", "iHwyK8awSJT", "Y5bb4chdKq53", "CdZydCJGeQh", "mDSz6AQBqF83", "CPvPx8Bpaax", "PY5fYRhiD6u", "33yY5e6esb8", "UdUb7LyUNay", "M6XEvfCAva33", "GU6UByAuEwX", "DHvy2n5vhmT", "kmhf6Ccmt8X", "66qzbiSqHM43", "CLcLub8wxT5", "mBuxxKGpTJB",
+"uQHUfQTSj3J", "iZWDfBLabau", "UDuxNXYqhJL", "erYudJySdR4", "b4xcLJJvjPc", "CEMKfrkb8m43", "kAnZZ4Q7VY83", "kG3DxayTW7x", "hawK6AzJ8L7", "ZR6cN5SVbfd", "B7Ykjbk7iu73", "UK5JmqRNsa73", "zimkW34fDaW", "EiU8sYQf42N", "fCYypa46sk3", "zwRVbkbbMub", "3VmD7ZzEazy", "HWtZqQ7eMj73", "td4kQLGnff53", "YKmmS8ZmtG63", 
+"ZkvMScrEzJw", "VzkrrF7XsYE", "vTZdtjncbYf", "pRX6j3G6xc", "qpKxfuDP7j7", "pz47XRN6VfN", "8FhnPDycv5M", "vF6rf6fnz5S", "JZEJZiMBfiX", "eYCGTR73bR6", "KKsi4zdtZW43", "H3bzLv2DTqL", "7veBXBtrFWX", "tzffUssd6363", "zYahwnG8dr43", "JRtdeUARBzv", "RZMQuZfiiK63", "dJnJMrk7S8n", "na2dwUmCuUK", "mSzhDMs8cma",
+"77RePLpZn5i", "peFNNnuAKmv", "VqRJPpnzGH3", "t7YZhB7kcU6", "qk4rtuNdTxG", "snZfEsX2wN8", "ia8TNMqrKKy", "yHd6Ne3PmUE", "xsAD5iscqAw", "e8J7yNdEmKq", "GenbKQkPXWy", "EKMspN3Wjn33", "iE7qDqjLJY33", "RwDPPESyAnE", "TGpm5qkBGpV", "KcpnxWimC3K", "b4tXPHA4m25", "2jdmrqA3y5S", "4QAW7R7kjiY", "wHHcCZqyeLF",
+"mcyFDyFiZYv", "xfxeWjC4TEK", "ccNfwDMSCZw", "xBCZX6vwnfv", "3d4dszsxWzN", "DzbvfNpV3Xk", "ZQUqjKcxMPx", "jaEjHHatjHs", "tuDpuCyFNX43", "djZ3jU4Y8Nz", "QXNrUh25AC43", "UAKdZTPLkJx", "sm354LPD7Gu", "wRBqBVMw7Gd", "fnLjpKrV4b3", "3iUjbmTmVxi", "rZmwsweERHR", "FBz3SMBnHPP", "EAcJMw7ZYNj", "UAJbCAwRR6F",
+"f3TQXmaP5rx", "ZH8fFY7aXbX", "ULGLAnyHTGP", "wVmQeUxiGA83", "Ckir3f5kJP", "TCxnpNsRWw33", "Dah2XzYvxJ73", "s6UVp6rPfcs", "A2DZzWmsmJT", "MkePXSmZLE73", "JW3Z7Rre8X23", "pZKDaSWQi6t", "7MskhHmDHqb", "a5UQvw2RMTk", "bjxZdasqbXk", "wR2ayxDQZaw", "SQ57PKVXbA33", "Km6wFLfaqVH", "JmVknAHVRZ23", "ZWFtHcXsPeR",
+"7rAcGxyTqha", "F5vy8se7apM", "3RHxnwpMQX33", "XLzAzKPxsbs", "3GuyxzRiAXh", "ipvkT8aiPT5", "G5Ud4n8E7u73", "HWGEedWbYnE", "2DkVm5byp8Q", "XGRMzy4DER6", "nP2LTVGDfnr", "z3BSKwkxLt43", "rzRsbTPwYft", "e3zLtup34Hf", "4EytCi7vCyD", "a6AybsrD3QG", "TryJKwY8U733", "WacXp5wu3Wy", "LU5SLnEVXYQ", "ENYpnpcyfHZ",
+"nnJeGkVdaah", "uarK8XVqauw", "YB3jFzkyc67", "8N43WTT74SQ", "DdDeJFcHUwN", "ktCJpVqfziM", "nm7ZVwCwUfh", "nyzSfBXWya", "iES43iRXReA", "QsvyeSqLucz", "WfLZVDZEAQj", "4PGHnxdniB7", "bbnAA6byUTY", "MzG7nV3UQBD", "f8QfSmXaGnt", "5SQ6nkcwbZq", "smyVVFQyk6f", "e4hb5qqWfHG", "ePT8tdSLfK43", "drdVQXZwdL53",
+"7eHeDMYKStk", "mDzha5YaNVT", "WMUsqVm8Fq43", "mSrbT6NiF5d", "QPVVEq2Xj2K", "MG8qGuRLZZJ", "BUZredkdtwV", "s4PSEbTDLRk", "nmduGBBNjwK", "LfJaLdZWSh6", "uaPTAWijTya3", "4JULCDQ5ZE3", "LRzjH8a7a3S", "i3Fc2tZ6rEa", "CQ44F5txaDm", "scsMSWYhS8f", "wrFEJaMtSMr", "wJM2mJdAUxJ", "s5xXzBRxza", "X6PcuhwVawu",
+"tPjRDzNs7Wd", "rsHZvhdjTe63", "D8bTiPGWXvL", "MkzkzpfkT6n", "SVPswBAskm83", "xQLDP2zGvU23", "hLh6rkXbuCM", "qMRBCSqe3Hm", "jxcMhPVVV8d", "iDKhEPcuFQ8", "zyQ8rNkDeSD", "7Ama2dfHPvZ", "dkwZW4W3irs", "kHh24iaqjdr", "yEzUWywG3tL", "7dfXreaS56K", "zRzB5y7HTkc", "ZeVDiTRY8S23", "MkHEhsY4m4R", "YYbiyJmvpBp",
+"8E4cpxUK4KE", "3VLWn8Qxyam", "hs8sYWCjtf43", "SWfdup6kMD23", "WxmG3TzRxT5", "drQpGadUHN53", "A8Hajms5ZeQ", "kvdXUUXR6L43", "BjaT6wWLPzJ", "ybbWzhnMQAr", "Miv7XhSh2zd", "PvbtjRb5sp33", "jAiQ6DiwaLf", "rFwbtSx62KG", "Vz736DCsrbw", "yRGWUqMJAXF", "2GQ5fAj823A", "up8jzaQ7LcC", "HqsG5pJNLdF", "6kAVPyjvVyB",
+"De8ntDAzyPf", "cdthKEp6NzM", "hLHEwn6SCLx", "AGmUqHwAErb", "rcqDV6svBKD", "6PC26nZch7N", "VTp4ASzZLrh", "JfL7AxYPcAr", "x8CWdX3LGdd", "U8JYj3ycCk5", "MAUHh88Apzu", "EUXTmbG5teF", "aXsT64e6fMu", "EQ4dPJNsdtQ", "Dmr8QV854aC", "u8TGumqexqD", "N7yMYUMpH86", "PHHNqRV8YWC", "U7fZ6PWTnFc", "kefTqG2MSBX",
+"fNZPtH5SHk4", "kLRJwfNVF6X", "CFRD3uwrGXD", "tJi5svsiKuX", "3NbUMrx58kW", "PAKH2mE88aV", "3h8hA4DkJui", "RPDtjpQH635", "22G4j8dHD76", "kk5kWnHTmbG", "VFmuRrsrKYH", "77Gep2z7Ecf", "zp8beXjDAjV", "8XWkpVDyLFQ", "zQqxmZiy78c", "MeQxbV6zGRF", "JnEJdZiPUeG", "hqQrhNh8wa4", "TzqXwhDHB8C", "ZchTwt5J5EJ", "HivVnGrNWmf", "fyDA7uvqsJP", "QiujVBWALTS", "iRbefsJLQq33", "VzbvnFBZQ2c", "DQj3Nq7wYLC", "iuynMsA2dSt", "JmZMDVVmKsp", "CKB7qSJvBdU", "LnM5PkVWX543", 
+"LbtVTx4dStX", "5jPrLFWwcGr", "4ZEsLYYtSxv", "ZrcSWvwz3WX", "cAQVCB3eJFE", "ULnvwPRuN6F", "eFqzUjBtDD8", "XdTAhh86z8t", "BCnPcLdX2M7", "VamyqcWGbSL", 
+"xmHzzqpDH8e", "pYRyEYECDjL", "pRXBZnLmKWF", "ury2YwDikSH", "qbGiDU8eVCJ", "zSwP3xu3N45", "qXFHV7hPyva3", "UXSjVp2wzZ6", "SaWC7VMi56Y", "sKUPbj6CLmE", 
+"AXnBAWjcSzx", "rsM3QrcaG8x", "REnZDcKfmNA", "cnX4XmuRYN33", "LwjtDhYHXrH", "UKjMcmTyBTT", "KSvHbpaUpWD", "QWYCYstrBfM", "q7QrqrRmNZN", "yAhhWLcsyiB", 
+"h3MfFWu3TeP", "zmZ64zUPjhV", "jdNEhnNZTcA", "XYkYbANTMPc", "jDCNXQ2jsUE", "wRbVmDnXyBw", "cYYfBeyxmiL", "uhreBytvHK43", "SBcTExb8Fdw", "ei2dSYywXGb", 
+"J7Sv55DAJyr", "T3Y5fi8HW553", "KkDHbbaNuQU", "GQLh2WbxVj33", "cpey6vYAZ7x", "mRyZzaZtqBb", "fy367tULF6C", "waeUmeenVT6", "fYXKxTXHPWJ", "Eh7YpKHKiwt", 
+"U3LGkSxwAnt", "4NRYWMaqrXy", "wYQRt8Ffc77", "wnjhDQUctH5", "NXYZ3sGvhG5", "PPDCmK5zd2s", "c6isVtiEvyM", "U4BpTLYvcL4", "fGde5nrvA323", "FmFvpYBBMxR", 
+"6L2CZeGq7Vv", "RJ82A3NbLu23", "WtUfLNaaBZd", "aiJxVtKpGpN", "DmDRdZZK8EZ", "Ayw64zQQn6N", "r2HYwt78A7w", "YJQjsZptdCT", "HBrNJpWVNW33", "AT6MvPk6u6u", 
+"j4ZKSByB8Ev", "eeMQbY322Wx", "FSBD86DquQt", "H44hvFED2f6", "5W5nYMcfNn4", "zXWJdhFBkUc", "T3L3yXhtXqW", "PeAXUJWNu5Y", "jhJDeVyCytm", "AbEPtCtXjWn", 
+"6yX5fMcXbZP", "Dun42pkEEHP", "MqvJ6ExrnL73", "Du3htWnV4Y4", "JFMN24xSqsQ", "quzT7KRLiq53", "5iRiGDYM3Cj", "MNEz4ArR5Ri", "pBYRAsp8aJ4", "praFPpddsGX", 
+"xREwEQpzkb73", "2QWHuA2wUN83", "UcBA3FecD3s", "6uBwLv3VbUK", "4yuvXYpDZyx", "p6jDLqFt8XS", "E2J7E6ezXrC", "F8cMrN4w5fZ", "6uBDvMAEri8", "H4e2uUtjywn", 
+"iYTEWaZ2bPH", "5KWfE3yjK7X", "P5mtwc3Jvix", "S8nMRMnc4Lk", "8kwkJYPFrYY", "C7ZWmhkLR2p", "KKvELpExhBB", "4FQZbPvBcpc", "QChXRvYb2EV", "FM8HcZeqMjD", 
+"M7ryZN4wqyN", "wA8NFNpZySY", "t6dRjyJytJi", "nGpLZGHFMQ8", "G6Wz6Mh6WTB", "kThGbBCYzVG", "QYDUP5YMVKu", "BPfMfe6vAp5", "8R2EhsMcZpL", "7HLhtbrVGpV", 
+"ShyFNyst2u33", "bmKV2NwJr48", "UiHNqAEJyxT", "4mCUiUQz2N33", "SDZrJJt5PYY", "LZzzUBNnKvQ", "SLvv4MskqvB", "4QdpxqwupU53", "EUzZYrv5ezw", "JnM73VQi2ka3", 
+"Fr3nqFY8a2U", "nUGnSNn6jYm", "bARGebzduq53", "K4BZAFsxaF6", "NFTBXKuqFLV", "KCLhH2iSfkL", "hWGwnwUszG53", "KDQcfZP4kPH", "LpM66LNUAxc", "JJCwXcdGLXi", 
+"S6AN3h2XZzx", "heY2q5AVp5w", "PwNHDDe6cAf", "s2j3TNBG7jM", "LnBL3XyC6Cv", "NdCsqzfcEe33", "XKvDMKe4xyE", "UZatXZUtFqk", "G8edjVtywTw", "qKBkE8S8dm43"
+
+
+    ];
+
+    // Function to capitalize the name input
+    function capitalizeName(name) {
+        return name.replace(/\b\w/g, function(char) {
+            return char.toUpperCase();
+        });
+    }
+
+    let usedVouchers = JSON.parse(localStorage.getItem('usedVouchers')) || [];
+    const tableBody = document.querySelector('#voucherTable tbody');
+
+    // Function to populate the table with stored data
+    function populateTable() {
+        const storedData = JSON.parse(localStorage.getItem('voucherData')) || [];
+        storedData.forEach(data => {
+            const row = `<tr>
+                <td>${data.dateTime}</td>
+                <td>${data.name}</td>
+                <td>${data.section}</td>
+                <td>${data.voucherCode}</td>
+            </tr>`;
+            tableBody.insertAdjacentHTML('afterend', row);
+        });
+    }
+
+    // Event listener for the form submission
+    document.getElementById('voucherForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        // Helper function to capitalize first letter of each word
+        function capitalizeFirstLetter(str) {
+            return str.replace(/\b\w/g, function (match) {
+              return match.toUpperCase();
+            });
+        }
+     
+        const studentName = capitalizeFirstLetter(document.getElementById('studentName').value.trim());
+        const studentSection =capitalizeFirstLetter (document.getElementById('section').value.trim());
+        const dateTime = new Date().toLocaleString();
+
+        if (usedVouchers.length >= voucherCodes.length) {
+            alert("No more voucher codes available.");
+            return;
+        }
+
+        let voucherCode;
+        for (let code of voucherCodes) {
+            if (!usedVouchers.includes(code)) {
+                voucherCode = code;
+                usedVouchers.push(code);
+                break;
+            }
+        }
+
+        const newVoucherData = { dateTime, name: studentName, section: studentSection, voucherCode };
+        const storedData = JSON.parse(localStorage.getItem('voucherData')) || [];
+        storedData.push(newVoucherData);
+        localStorage.setItem('voucherData', JSON.stringify(storedData));
+        localStorage.setItem('usedVouchers', JSON.stringify(usedVouchers));
+
+        // Insert the new row into the table
+        const row = `<tr>
+            <td>${dateTime}</td>
+            <td>${studentName}</td>
+            <td>${studentSection}</td>
+            <td>${voucherCode}</td>
+        </tr>`;
+        tableBody.insertAdjacentHTML('afterend', row);
+
+        document.getElementById('voucherForm').reset();
+    });
+
+// Load data from localStorage on page load
+function loadTableData() {
+        const storedData = localStorage.getItem('voucherTableData');
+        if (storedData) {
+            const data = JSON.parse(storedData);
+            data.forEach(row => {
+                addRowToTable(row);
+            });
+            counter = data.length; // Set the counter to the number of stored rows
+        }
+    }
+
+    // Save data to localStorage
+    function saveTableData() {
+        const rows = Array.from(voucherTable.rows).map(row => ({
+            counter: row.cells[0].textContent,
+            dateTime: row.cells[1].textContent,
+            name: row.cells[2].textContent,
+            section: row.cells[3].textContent,
+            voucherCode: row.cells[4].textContent
+        }));
+        localStorage.setItem('voucherTableData', JSON.stringify(rows));
+    }
+
+    // Populate table on page load
+    populateTable();
+
+    // Download function for Word document
+    document.getElementById('downloadBtn').addEventListener('click', function () {
+        const table = document.getElementById("voucherTable");
+        const cloneTable = table.cloneNode(true);
+
+        // Add title to the Word document
+        const title = `<h1 style="text-align: center;">ECC Student Portal Voucher Usage</h1>`;
+
+        const style = `
+            <style>
+                table { width: 100%; border-collapse: collapse; }
+                th, td { padding: 10px; text-align: center; border: 1px solid #ddd; }
+                th { background-color: #1E3A8A; color: white; }
+                tr:nth-child(even) { background-color: #f2f2f2; }
+                tr:hover { background-color: #e6f2ff; }
+            </style>
+        `;
+
+        const blob = new Blob([style + title + cloneTable.outerHTML], { type: "application/msword" });
+
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "ECC_Student_Portal_Voucher_Usage.doc";
+        link.click();
+    });
+
+    // Print function
+    document.getElementById('printBtn').addEventListener('click', function () {
+        const printWindow = window.open('', '', 'height=600,width=800');
+        
+        const title = `<h1 style="text-align: center; font-family: Arial, sans-serif;">ECC Student Portal Voucher Usage</h1>`;
+
+        const printContent = `
+            <html>
+                <head>
+                    <title>Print Vouchers</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; text-align: center; }
+                        table { width: 80%; margin: 20px auto; border-collapse: collapse; }
+                        th, td { padding: 10px; text-align: center; border: 1px solid #ddd; }
+                        th { background-color: #1E3A8A; color: white; }
+                        tr:nth-child(even) { background-color: #f2f2f2; }
+                        tr:hover { background-color: #e6f2ff; }
+                    </style>
+                </head>
+                <body>
+                    ${title}
+                    ${document.getElementById("voucherTable").outerHTML}
+                </body>
+            </html>
+        `;
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        printWindow.print();
+    });
+
+    // Show password form for clearing the table
+    document.getElementById('clearBtn').addEventListener('click', function () {
+        document.getElementById('passwordForm').style.display = 'block';  // Show the password form
+    });
+
+    // Confirm clear table
+    document.getElementById('confirmClearBtn').addEventListener('click', function () {
+    const enteredPassword = document.getElementById('clearPassword').value.trim();
+
+    if (enteredPassword === "Admin12345") {
+        const confirmClear = confirm("Are you sure you want to clear the table?");
+        if (confirmClear) {
+            // Clear only the table data without affecting the used vouchers
+            tableBody.innerHTML = '';
+            localStorage.removeItem('voucherData');  // Clears only voucher data, not the usedVouchers
+        }
+    } else {
+        alert("Incorrect password");
+    }
+    document.getElementById('passwordForm').style.display = 'none';  // Hide the password form
+});
+
+
+    // Cancel clear table
+    document.getElementById('cancelClearBtn').addEventListener('click', function () {
+        document.getElementById('passwordForm').style.display = 'none';  // Hide the password form
+    });
+
+    // Add event listeners for Enter key functionality on buttons
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent default Enter key behavior
+
+            // Trigger the submit button
+            document.querySelector('form').requestSubmit();
+        }
+    });
+    
+</script>
+
+</body>
+</html>
