@@ -327,6 +327,9 @@
             display: none;
             /* Hidden by default */
         }
+        .admin-controls {
+            display: none;
+        }
         
     </style>
 </head>
@@ -369,17 +372,31 @@
                     <option value="12-STEM">12-STEM</option>
                 </select>
                 <button type="button" onclick="addEntry()">Time In</button>
+                
+                <button type="button" id="adminBtn">Admin</button>
+
+            <div class="buttons admin-controls">
                 <button type="button" onclick="window.print()">Print</button>
                 <button type="button" onclick="downloadExcel()">Download Word</button>
                 <button type="button" onclick="showDeleteConfirmation()">Clear Data</button>
                 <button id="downloadPdfBtn" type="button">Download Graph</button>
-                <button class="delete-btn" id="deleteSelectedBtn" type="button"
-                    onclick="showDeleteConfirmation()">Delete Selected</button>
+                <button class="delete-btn" id="deleteSelectedBtn" type="button" onclick="showDeleteConfirmation()">Delete Entries</button>
+
+                <!-- Optional: If keeping these -->
+                <canvas id="hiddenCanvas" style="display: none;"></canvas>
+                <div class="delete-controls">
+                    <button type="button" id="confirmDeleteBtn" style="background-color: #dc3545;">Confirm Delete</button>
+                    <button type="button" id="cancelDeleteBtn">Cancel</button>
+                </div>
+            </div>
+
+
+
                 <canvas id="usageChart" style="display: none;"></canvas> <!-- Hidden Chart -->
             </div>
 
             <!-- Added error message element -->
-            <div id="errorMessage" class="error-message" style="display: none;">Please enter your complete name!</div>
+            <div id="errorMessage" class="error-message" style="display: none; font-size: 20px;">Please enter your complete name!</div>
         </form>
         <table id="entriesTable">
             <thead>
@@ -739,6 +756,25 @@
         });
 
         renderTable();
+
+        // Admin Button when clicked it shows admin buttons like print, clear table, download as word, download graph and delete entries 
+        // Password of EccAdmin1963! when admin button is clicked it needs a password
+        document.getElementById("adminBtn").addEventListener("click", function () {
+        const adminControls = document.querySelector(".admin-controls");
+
+        // If hidden, prompt for password
+        if (adminControls.style.display === "none" || adminControls.style.display === "") {
+            const password = prompt("Enter Admin Password:");
+            if (password === "EccAdmin1963!") {
+            adminControls.style.display = "flex";
+            } else {
+            alert("Incorrect password. Access denied.");
+            }
+        } else {
+            // If visible, just hide without asking
+            adminControls.style.display = "none";
+        }
+        });
     </script>
     
 </body>
