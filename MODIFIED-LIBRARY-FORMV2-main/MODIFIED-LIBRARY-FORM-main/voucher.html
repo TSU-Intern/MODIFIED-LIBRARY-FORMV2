@@ -328,6 +328,9 @@
                 width: 100%;
             }
         }
+          .admin-controls {
+            display: none;
+        }
     </style>
 </head>
 
@@ -369,9 +372,11 @@
                     <option value="12-STEM">12-STEM</option>
                 </select>
                 <button type="submit">Generate Voucher</button>
+                <button type="button" id="adminBtn">Admin</button>
+
             </div>
 
-            <div class="buttons">
+            <div class="buttons admin-controls">
                 <button type="button" class="print-button" id="printBtn">Print</button>
                 <button type="button" id="clearBtn">Clear Table</button>
                 <button type="button" class="download-button" id="downloadBtn">Download as Word</button>
@@ -379,8 +384,7 @@
                 <canvas id="hiddenCanvas" style="display: none;"></canvas>
                 <button type="button" id="deleteBtn">Delete Entries</button>
                 <div class="delete-controls">
-                    <button type="button" id="confirmDeleteBtn" style="background-color: #dc3545;">Confirm
-                        Delete</button>
+                    <button type="button" id="confirmDeleteBtn" style="background-color: #dc3545;">Confirm Delete</button>
                     <button type="button" id="cancelDeleteBtn">Cancel</button>
                 </div>
             </div>
@@ -514,6 +518,7 @@
 
         document.getElementById('cancelDeleteBtn').addEventListener('click', function () {
             exitDeleteMode();
+            
         });
 
         document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
@@ -525,7 +530,7 @@
             }
 
             const password = prompt('Enter password to confirm deletion:');
-            if (password !== "Admin12345") {
+            if (password !== "EccAdmin1963!") {
                 alert('Incorrect password. Deletion cancelled.');
                 return;
             }
@@ -556,12 +561,9 @@
             // Save changes
             localStorage.setItem('voucherData', JSON.stringify(storedData));
             localStorage.setItem('usedVouchers', JSON.stringify(usedVouchers));
-
-            exitDeleteMode();
-
-            // Update the table numbering after deletion
-            updateRowNumbers();
-            populateTable();
+            populateTable(); // refresh table display
+            exitDeleteMode(); // exit delete mode
+            updateRowNumbers(); // renumber rows if needed
             alert(`${checkboxes.length} record(s) deleted successfully.`);
         });
         function updateRowNumbers() {
@@ -576,8 +578,15 @@
 
         function exitDeleteMode() {
             deleteMode = false;
-            document.getElementById('deleteBtn').style.display = 'block';
+
+            // Show the delete button again
+            const deleteBtn = document.getElementById('deleteBtn');
+            deleteBtn.style.display = 'inline-block'; // or 'flex' depending on your original layout
+
+            // Hide delete confirmation controls
             document.querySelector('.delete-controls').style.display = 'none';
+
+            // Remove delete mode styling
             document.getElementById('voucherTable').classList.remove('show-delete-mode');
 
             // Uncheck all checkboxes
@@ -585,7 +594,7 @@
                 checkbox.checked = false;
             });
         }
-
+       
         // Click outside to cancel delete mode
         // Update the click-away event listener to only exit when clicking outside the container
         document.addEventListener('click', function (e) {
@@ -986,6 +995,26 @@
                 updateTableForCurrentPage();
             }
         });
+
+        // Admin Button when clicked it shows admin buttons like print, clear table, download as word, download graph and delete entries 
+        // Password of EccAdmin1963! when admin button is clicked it needs a password
+        document.getElementById("adminBtn").addEventListener("click", function () {
+        const adminControls = document.querySelector(".admin-controls");
+
+        // If hidden, prompt for password
+        if (adminControls.style.display === "none" || adminControls.style.display === "") {
+            const password = prompt("Enter Admin Password:");
+            if (password === "EccAdmin1963!") {
+            adminControls.style.display = "block";
+            } else {
+            alert("Incorrect password. Access denied.");
+            }
+        } else {
+            // If visible, just hide without asking
+            adminControls.style.display = "none";
+        }
+        });
+
 
 
     </script>
