@@ -303,6 +303,7 @@
         width: 340px;
         font-family: Arial, sans-serif;
         font-size: 15px;
+        border-radius: 10px;
     }
 
     .popup h3, .password-popup h3 {
@@ -350,6 +351,23 @@
 
     .popup-buttons button:not(.danger-btn):hover, .password-popup-buttons button:not(.danger-btn):hover {
         background-color: darkblue;
+    }
+
+        /* Add this to your existing CSS */
+    .popup-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+        z-index: 999; /* Just below the popup */
+    }
+
+    /* Modify your existing popup class to show when active */
+    .popup.active {
+        display: block;
     }
 
     .loading, .wordload {
@@ -446,6 +464,7 @@
             display: none;
         }
     }
+    
 </style>
 </head>
 
@@ -508,7 +527,10 @@
             <!-- Added error message element -->
             <div id="errorMessage" class="error-message" style="display: none; font-size: 20px;">Please enter your complete name!</div>
         </form>
-        
+
+        <!-- Dim background overlay -->
+        <div id="popupOverlay" class="popup-overlay"></div>
+
         <!-- Clear Data Confirmation Popup -->
         <div id="confirmClearPopup" class="popup">
             <h3>Clear Table Data</h3>
@@ -516,6 +538,17 @@
             <div class="popup-buttons">
                 <button id="confirmClearBtn" class="danger-btn">Confirm Delete</button>
                 <button id="cancelClearBtn">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Password Popup -->
+        <div id="passwordPopup" class="popup">
+            <h3>Admin Access</h3>
+            <p>Please enter the admin password:</p>
+            <input type="password" id="adminPassword" placeholder="Enter password" style="width: 100%; padding: 8px; margin-bottom: 15px;">
+            <div class="popup-buttons">
+                <button id="confirmPasswordBtn">Confirm</button>
+                <button id="cancelPasswordBtn">Cancel</button>
             </div>
         </div>
 
@@ -613,12 +646,16 @@
         }
 
 
-        function formatDate(date) {
-            const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            const dateObj = new Date(date);
+        function formatDate(isoDate) {
+            const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const dateObj = new Date(isoDate);
             const day = daysOfWeek[dateObj.getDay()];
-            return `${day}, ${dateObj.getMonth() + 1}/${dateObj.getDate()}/${dateObj.getFullYear()}`;
+            const month = dateObj.getMonth() + 1;
+            const date = dateObj.getDate();
+            const year = dateObj.getFullYear();
+            return `${day}, ${month}/${date}/${year}`;
         }
+
 
         function addEntry() {
             const name = document.getElementById('name').value.trim();
@@ -639,7 +676,7 @@
             }
 
             const now = new Date();
-            const currentDate = now.toISOString().split('T')[0];
+            const currentDate = now.toISOString(); // store full ISO string including time
             const currentTime = now.toLocaleTimeString();
 
             const isDuplicate = entries.some(entry =>
@@ -869,19 +906,49 @@
         // Admin Button functionality
         document.getElementById("adminBtn").addEventListener("click", function () {
             const adminControls = document.querySelector(".admin-controls");
-
-            // If hidden, prompt for password
-            if (adminControls.style.display === "none" || adminControls.style.display === "") {
-                const password = prompt("Enter Admin Password:");
-                if (password === "EccAdmin1963!") {
-                    adminControls.style.display = "flex";
-                } else {
-                    alert("Incorrect password. Access denied.");
-                }
-            } else {
-                // If visible, just hide without asking
+            
+            // If admin controls are already visible, hide them
+            if (adminControls.style.display === "flex") {
                 adminControls.style.display = "none";
-                exitDeleteMode(); // Also exit delete mode if active
+                this.textContent = "Admin";
+                exitDeleteMode();
+                return;
+            }
+            
+            // Show password popup
+            document.getElementById("passwordPopup").style.display = "block";
+            document.getElementById("popupOverlay").style.display = "block";
+            document.getElementById("adminPassword").focus();
+        });
+
+        // Password popup handlers
+        document.getElementById("confirmPasswordBtn").addEventListener("click", function() {
+            const password = document.getElementById("adminPassword").value;
+            const adminControls = document.querySelector(".admin-controls");
+            
+            if (password === "EccAdmin1963!") {
+                adminControls.style.display = "flex";
+                document.getElementById("adminBtn").textContent = "Hide Admin";
+            } else {
+                alert("Incorrect password. Access denied.");
+            }
+            
+            // Clear and hide popup
+            document.getElementById("adminPassword").value = "";
+            document.getElementById("passwordPopup").style.display = "none";
+            document.getElementById("popupOverlay").style.display = "none";
+        });
+
+        document.getElementById("cancelPasswordBtn").addEventListener("click", function() {
+            // Clear and hide popup
+            document.getElementById("adminPassword").value = "";
+            document.getElementById("passwordPopup").style.display = "none";
+            document.getElementById("popupOverlay").style.display = "none";
+        });
+
+        document.getElementById("adminPassword").addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+                document.getElementById("confirmPasswordBtn").click();
             }
         });
 
@@ -930,6 +997,7 @@
             document.getElementById('entriesTable').classList.add('show-delete-mode');
             document.querySelector('.delete-controls').style.display = 'flex';
             document.getElementById('deleteBtn').style.display = 'none';
+            document.getElementById('popupOverlay').style.display = 'block'; // Show overlay
         }
 
         function exitDeleteMode() {
@@ -937,6 +1005,7 @@
             document.getElementById('entriesTable').classList.remove('show-delete-mode');
             document.querySelector('.delete-controls').style.display = 'none';
             document.getElementById('deleteBtn').style.display = 'block';
+            document.getElementById('popupOverlay').style.display = 'none'; // Hide overlay
             
             // Uncheck all checkboxes
             document.querySelectorAll('.delete-checkbox').forEach(checkbox => {
@@ -944,20 +1013,25 @@
             });
         }
 
-        // Clear data functionality
+        // Clear data functionality - show popup and overlay
         document.getElementById('clearBtn').addEventListener('click', function() {
-            document.getElementById('confirmClearPopup').style.display = 'block';
+            document.getElementById('confirmClearPopup').classList.add('active');
+            document.getElementById('popupOverlay').style.display = 'block';
         });
 
+        // Cancel clear - hide popup and overlay
         document.getElementById('cancelClearBtn').addEventListener('click', function() {
-            document.getElementById('confirmClearPopup').style.display = 'none';
+            document.getElementById('confirmClearPopup').classList.remove('active');
+            document.getElementById('popupOverlay').style.display = 'none';
         });
 
+        // Confirm clear - hide popup and overlay
         document.getElementById('confirmClearBtn').addEventListener('click', function() {
             entries = [];
             localStorage.setItem('libraryEntries', JSON.stringify(entries));
             renderTable();
-            document.getElementById('confirmClearPopup').style.display = 'none';
+            document.getElementById('confirmClearPopup').classList.remove('active');
+            document.getElementById('popupOverlay').style.display = 'none';
             alert('All table data has been cleared.');
         });
 
@@ -965,13 +1039,16 @@
         document.addEventListener('click', function(e) {
             if (!deleteMode) return;
 
+            // Check if click is on the overlay (background)
+            const isClickOnOverlay = e.target.id === 'popupOverlay';
+
             // Check if click is inside the table or delete controls
             const isClickInsideTable = e.target.closest('#entriesTable');
             const isClickInDeleteControls = e.target.closest('.delete-controls');
             const isClickOnDeleteBtn = e.target.closest('#deleteBtn');
 
-            // Only exit delete mode if clicking completely outside relevant elements
-            if (!isClickInsideTable && !isClickInDeleteControls && !isClickOnDeleteBtn) {
+            // Exit delete mode if clicking on overlay or outside relevant elements
+            if (isClickOnOverlay || (!isClickInsideTable && !isClickInDeleteControls && !isClickOnDeleteBtn)) {
                 exitDeleteMode();
             }
         });

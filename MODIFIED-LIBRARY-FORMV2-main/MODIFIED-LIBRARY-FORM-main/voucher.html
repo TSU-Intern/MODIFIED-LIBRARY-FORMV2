@@ -11,6 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     <script src="/js/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 
     <style>
         body {
@@ -365,6 +366,7 @@
             width: 340px;
             font-family: Arial, sans-serif;
             font-size: 15px;
+            border-radius: 10px;    
         }
 
         .popup h3 {
@@ -418,7 +420,70 @@
             background-color: darkblue;
         }
 
+        /* Add this to your existing CSS */
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+            z-index: 999; /* Just below the popup */
+        }
 
+        /* Modify your existing popup class to show when active */
+        .popup.active {
+            display: block;
+        }
+        /* Add to your style section */
+        .qr-code-display {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .qr-code-display img {
+            margin: 10px 0;
+            border: 1px solid #ddd;
+        }
+
+        .qr-code-display button {
+            margin-top: 10px;
+            padding: 5px 10px;
+        }
+
+        .voucher-code {
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .voucher-code:hover .qr-btn {
+            display: inline-block !important;
+        }
+        .qr-btn {
+            background: royalblue;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .qr-btn:hover {
+            background: darkblue;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 
@@ -499,6 +564,8 @@
             <span id="pageInfo">Page 1 of 1</span>
             <button id="nextPage">Next</button>
         </div>
+        <!-- Dim background overlay -->
+        <div id="popupOverlay" class="popup-overlay"></div>
 
        <!-- Confirmation Popup -->
         <div id="confirmClearPopup" class="popup">
@@ -507,6 +574,17 @@
             <div class="popup-buttons">
                 <button id="confirmClearBtn" class="danger-btn">Confirm Delete</button>
                 <button id="cancelClearBtn">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Password Popup -->
+        <div id="passwordPopup" class="popup">
+            <h3>Admin Access</h3>
+            <p>Please enter the admin password:</p>
+            <input type="password" id="adminPassword" placeholder="Enter password" style="width: 100%; padding: 8px; margin-bottom: 15px;">
+            <div class="popup-buttons">
+                <button id="confirmPasswordBtn">Confirm</button>
+                <button id="cancelPasswordBtn">Cancel</button>
             </div>
         </div>
 
@@ -580,13 +658,16 @@
             storedData.forEach((data, index) => {
                 const rowNumber = storedData.length - index;
                 const row = `<tr>
-            <td class="select-cell"><input type="checkbox" class="delete-checkbox" data-index="${index}"></td>
-            <td>${rowNumber}</td>
-            <td>${data.name}</td>
-            <td>${data.section}</td>
-            <td>${data.dateTime}</td>
-            <td>${data.voucherCode}</td>
-        </tr>`;
+                <td class="select-cell"><input type="checkbox" class="delete-checkbox" data-index="${index}"></td>
+                <td>${rowNumber}</td>
+                <td>${data.name}</td>
+                <td>${data.section}</td>
+                <td>${data.dateTime}</td>
+                <td class="voucher-code" data-code="${data.voucherCode}">
+                    <span>${data.voucherCode}</span>
+                    <button class="qr-btn" style="display:none; margin-left:5px; font-size:12px; padding:2px 5px;">QR</button>
+                </td>
+            </tr>`;
                 tableBody.insertAdjacentHTML('beforeend', row);
             });
 
@@ -862,19 +943,25 @@
         });
 
         // Clear Table data Functions, Cancelling and Confirming
-        document.getElementById('clearBtn').addEventListener('click', function () {
-            document.getElementById('confirmClearPopup').style.display = 'block';
+        // Show popup and overlay
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            document.getElementById('confirmClearPopup').classList.add('active');
+            document.getElementById('popupOverlay').style.display = 'block';
         });
 
-        document.getElementById('cancelClearBtn').addEventListener('click', function () {
-            document.getElementById('confirmClearPopup').style.display = 'none';
+        // Hide popup and overlay
+        document.getElementById('cancelClearBtn').addEventListener('click', function() {
+            document.getElementById('confirmClearPopup').classList.remove('active');
+            document.getElementById('popupOverlay').style.display = 'none';
         });
+
 
         document.getElementById('confirmClearBtn').addEventListener('click', function () {
             localStorage.removeItem('voucherData');
             localStorage.removeItem('usedVouchers');
             populateTable(); // refresh the table
             document.getElementById('confirmClearPopup').style.display = 'none';
+            document.getElementById('popupOverlay').style.display = 'none';
             alert('All table data has been cleared.');
         });
 
@@ -1093,23 +1180,106 @@
 
         // Admin Button when clicked it shows admin buttons like print, clear table, download as word, download graph and delete entries 
         // Password of EccAdmin1963! when admin button is clicked it needs a password
+        // Admin Button functionality
         document.getElementById("adminBtn").addEventListener("click", function () {
-        const adminControls = document.querySelector(".admin-controls");
-
-        // If hidden, prompt for password
-        if (adminControls.style.display === "none" || adminControls.style.display === "") {
-            const password = prompt("Enter Admin Password:");
-            if (password === "EccAdmin1963!") {
-            adminControls.style.display = "block";
-            } else {
-            alert("Incorrect password. Access denied.");
+            const adminControls = document.querySelector(".admin-controls");
+            
+            // If admin controls are already visible, hide them
+            if (adminControls.style.display === "flex") {
+                adminControls.style.display = "none";
+                this.textContent = "Admin";
+                exitDeleteMode();
+                return;
             }
-        } else {
-            // If visible, just hide without asking
-            adminControls.style.display = "none";
-        }
+            
+            // Show password popup
+            document.getElementById("passwordPopup").style.display = "block";
+            document.getElementById("popupOverlay").style.display = "block";
+            document.getElementById("adminPassword").focus();
         });
 
+        // Password popup handlers
+        document.getElementById("confirmPasswordBtn").addEventListener("click", function() {
+            const password = document.getElementById("adminPassword").value;
+            const adminControls = document.querySelector(".admin-controls");
+            
+            if (password === "EccAdmin1963!") {
+                adminControls.style.display = "flex";
+                document.getElementById("adminBtn").textContent = "Hide Admin";
+            } else {
+                alert("Incorrect password. Access denied.");
+            }
+            
+            // Clear and hide popup
+            document.getElementById("adminPassword").value = "";
+            document.getElementById("passwordPopup").style.display = "none";
+            document.getElementById("popupOverlay").style.display = "none";
+        });
+
+        document.getElementById("cancelPasswordBtn").addEventListener("click", function() {
+            // Clear and hide popup
+            document.getElementById("adminPassword").value = "";
+            document.getElementById("passwordPopup").style.display = "none";
+            document.getElementById("popupOverlay").style.display = "none";
+        });
+
+        document.getElementById("adminPassword").addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+                document.getElementById("confirmPasswordBtn").click();
+            }
+            if (event.key === "Escape") {
+                document.getElementById("cancelPasswordBtn").click();
+            }
+        });
+
+        // Add this to your DOMContentLoaded event listener
+        document.addEventListener('DOMContentLoaded', function() {
+            populateTable();
+            
+            // QR code click handler
+            document.addEventListener('click', function(e) {
+                // Click on voucher code text
+                if (e.target.classList.contains('voucher-code') || e.target.parentElement.classList.contains('voucher-code')) {
+                    const codeElement = e.target.classList.contains('voucher-code') ? e.target : e.target.parentElement;
+                    const voucherCode = codeElement.getAttribute('data-code');
+                    showQRCode(voucherCode);
+                }
+                
+                // Click on QR button
+                if (e.target.classList.contains('qr-btn')) {
+                    const voucherCode = e.target.parentElement.getAttribute('data-code');
+                    showQRCode(voucherCode);
+                }
+                
+                // Close QR code display
+                if (e.target.classList.contains('close-qr')) {
+                    document.querySelector('.qr-code-display')?.remove();
+                }
+            });
+        });
+
+        function showQRCode(voucherCode) {
+            // Remove any existing QR code displays
+            document.querySelector('.qr-code-display')?.remove();
+            
+            // Create QR code
+            const qr = qrcode(0, 'L');
+            qr.addData(voucherCode);
+            qr.make();
+            const qrImg = qr.createImgTag(5);
+            
+            // Create display element
+            const qrDisplay = document.createElement('div');
+            qrDisplay.className = 'qr-code-display';
+            qrDisplay.innerHTML = `
+                <h3>Voucher Code: ${voucherCode}</h3>
+                ${qrImg}
+                <button class="close-qr">Close</button>
+            `;
+            
+            document.body.appendChild(qrDisplay);
+        }
+        
 
 
     </script>
