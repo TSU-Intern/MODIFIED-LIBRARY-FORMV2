@@ -10,328 +10,443 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.30.0/docxtemplater.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
-        /* General Styles */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-image: url('bg.jpg');
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-position: center;
-            display: flex;
+    /* General Styles */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-image: url('bg.jpg');
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+        background-color: royalblue;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        color: white;
+        font-size: 15px;
+    }
+
+    .header-container {
+        background-color: rgba(0, 0, 0, 0.829);
+        width: 100%;
+        padding: 5px;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 10px;
+        box-sizing: border-box;
+        color: rgb(255, 255, 255);
+    }
+
+    .header-container img {
+        width: 42px;
+        height: 42px;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        transition: all 0.3s ease;
+        transform-origin: center;
+    }
+
+    .header-container a:hover img {
+        transform: scale(1.1) rotate(5deg);
+        filter: drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3));
+    }
+
+    .header-container span {
+        font-size: 30px;
+        font-weight: bold;
+        margin-left: 10px;
+    }
+
+    .header-container nav {
+        margin-left: auto;
+        display: flex;
+        gap: 15px;
+    }
+
+    .header-container nav a {
+        text-decoration: none;
+        color: white;
+        font-weight: bold;
+        font-size: 15px;
+        padding: 8px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+
+    .header-container nav a:hover {
+        background-color: rgb(228, 41, 56);
+    }
+
+    .container {
+        text-align: center;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        max-width: 80%;
+        width: 1200px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    .header {
+        background: linear-gradient(to right, rgb(16, 17, 22), #4169e1);
+        color: white;
+        text-align: center;
+        font-weight: bold;
+        font-size: 24px;
+        margin-bottom: 20px;
+        padding: 10px;
+    }
+
+    .reminder {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 16px;
+        color: red;
+        font-style: italic;
+        font-weight: bold;
+    }
+
+    .form-group, .form-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+    }
+
+    label {
+        font-weight: bold;
+        color: black;
+        width: auto;
+        text-align: right;
+        font-size: 15px;
+    }
+
+    input, select {
+        padding: 6px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        color: black;
+        width: 200px;
+        font-size: 15px;
+    }
+
+    .buttons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+
+    button {
+        background-color: royalblue;
+        color: white;
+        cursor: pointer;
+        border-radius: 5px;
+        padding: 6px 15px;
+        font-size: 15px;
+        border: none;
+        transition: background-color 0.3s;
+    }
+
+    button:hover {
+        background-color: darkblue;
+    }
+
+    .time-out-btn {
+        background-color: #4caf50;
+        font-weight: bold;
+    }
+
+    .time-out-btn:disabled {
+        background-color: #888;
+        cursor: not-allowed;
+    }
+
+    .timed-out, .returned {
+        background-color: #f44336 !important;
+        color: white;
+        pointer-events: none;
+        cursor: not-allowed;
+    }
+
+    .delete-btn {
+        background-color: #ff5447;
+    }
+
+    .delete-btn:hover {
+        background-color: #d32f2f;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background: linear-gradient(to bottom, #ffffff, #f0f0f0);
+        color: black;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+
+    th, td {
+        text-align: center;
+        padding: 8px;
+        font-size: 15px;
+    }
+
+    th {
+        background-color: royalblue;
+        color: white;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    /* Select Column Styles */
+    .select-header, .select-cell, .select-column {
+        width: 50px !important;
+        min-width: 50px !important;
+        max-width: 50px !important;
+        padding: 2px !important;
+        display: none;
+    }
+
+    .delete-checkbox {
+        margin: 0 auto;
+        display: block;
+        width: 16px;
+        height: 16px;
+    }
+
+    .show-delete-mode .delete-checkbox {
+        display: block !important;
+        margin: 0 auto;
+    }
+
+    .show-delete-mode .select-header,
+    .show-delete-mode .select-cell,
+    .show-delete-mode .select-column {
+        display: table-cell !important;
+        width: 30px;
+    }
+
+    .delete-controls {
+        display: none;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .show-delete-mode .delete-controls {
+        display: flex;
+    }
+
+    #deleteBtn.confirm-mode, .confirm-delete-btn {
+        background-color: #dc3545 !important;
+    }
+
+    #deleteBtn.confirm-mode:hover, .confirm-delete-btn:hover {
+        background-color: #c82333 !important;
+    }
+
+    .pagination {
+        margin-top: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .pagination button {
+        padding: 5px 10px;
+        background-color: royalblue;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+
+    .pagination button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+
+    .pagination span {
+        font-weight: bold;
+        color: black;
+    }
+
+    /* Popup styles */
+    .popup, .password-popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 24px;
+        z-index: 1000;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.19);
+        color: #333;
+        text-align: center;
+        width: 340px;
+        font-family: Arial, sans-serif;
+        font-size: 15px;
+    }
+
+    .popup h3, .password-popup h3 {
+        margin-bottom: 10px;
+        font-size: 20px;
+        color: black;
+        border-bottom: 1px solid #d0e2ff;
+        padding-bottom: 8px;
+    }
+
+    .popup p, .password-popup p {
+        margin-bottom: 20px;
+        font-size: 15px;
+        color: #444;
+    }
+
+    .popup-buttons, .password-popup-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .popup-buttons button, .password-popup-buttons button {
+        padding: 10px 18px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.2s ease;
+    }
+
+    .popup-buttons .danger-btn, .password-popup-buttons .danger-btn {
+        background-color: #e53935;
+        color: white;
+    }
+
+    .popup-buttons .danger-btn:hover, .password-popup-buttons .danger-btn:hover {
+        background-color: #c62828;
+    }
+
+    .popup-buttons button:not(.danger-btn), .password-popup-buttons button:not(.danger-btn) {
+        background-color: royalblue;
+        color: white;
+    }
+
+    .popup-buttons button:not(.danger-btn):hover, .password-popup-buttons button:not(.danger-btn):hover {
+        background-color: darkblue;
+    }
+
+    .loading, .wordload {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1001;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-size: 24px;
+    }
+
+    .chart-container {
+        margin-top: 30px;
+        width: 100%;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    canvas {
+        background-color: white;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .error-message {
+        color: red;
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        font-style: Bold;
+        font-size: 26px;
+        margin-top: 10px;
+        text-align: center;
+        display: none;
+    }
+
+    .admin-controls {
+        display: none;
+    }
+
+    @media (max-width: 768px) {
+        .form-group, .form-row {
             flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            color: rgb(12, 4, 4);
-            font-size: 15px;
-        }
-
-        .header-container {
-            background-color: rgba(0, 0, 0, 0.829);
-            width: 100%;
-            padding: 5px;
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            gap: 10px;
-            box-sizing: border-box;
-            color: rgb(255, 255, 255);
-        }
-
-        .header-container img {
-            width: 42px;
-            height: 42px;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-            transition: all 0.3s ease;
-            transform-origin: center;
-        }
-
-        .header-container a:hover img {
-            transform: scale(1.1) rotate(5deg);
-            filter: drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3));
-        }
-
-        .header-container span {
-            font-size: 30px;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-
-        .header-container nav {
-            margin-left: auto;
-            display: flex;
-            gap: 15px;
-        }
-
-        .header-container nav a {
-            text-decoration: none;
-            color: rgb(255, 255, 255);
-            font-weight: bold;
-            font-size: 15px;
-            padding: 8px;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-
-        .header-container nav a:hover {
-            background-color: rgb(228, 41, 56);
-        }
-
-        .container {
-            text-align: center;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            padding: 20px;
-            max-width: 80%;
-            width: 1200px;
-            margin-top: 20px;
-        }
-
-        .header {
-            background: linear-gradient(to right, rgb(16, 17, 22), #4169e1);
-            color: white;
-            text-align: center;
-            font-weight: bold;
-            font-size: 24px;
-            margin-bottom: 10px;
-            padding: 10px;
-        }
-
-        .reminder {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 16px;
-            color: red;
-            font-style: italic;
-            font-weight: bold;
-        }
-
-        .form-row {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 10px;
+            align-items: flex-start;
         }
 
         label {
-            font-weight: bold;
-        }
-
-        input,
-        select {
-            width: 150px;
-            padding: 6px;
-            border: 1px solid #110101;
-            border-radius: 5px;
-        }
-
-        .buttons {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        button {
-            background-color: royalblue;
-            color: white;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        button:hover {
-            background-color: darkblue;
-        }
-
-        table {
+            text-align: left;
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
+        }
+
+        input, select {
+            width: 100%;
+        }
+    }
+
+    @media print {
+        body {
+            margin: 0;
             background: white;
             color: black;
         }
 
-        th,
-        td {
-            padding: 6px;
-            text-align: center;
-            font-size: 14px;
-            border: 1px solid #ddd;
-        }
-
-        .select-column {
-            width: 30px;
-            min-width: 30px;
-
-        }
-
-        th {
-            background-color: royalblue;
-            color: white;
-        }
-
-        .time-out-btn {
-            background-color: #4caf50;
-            color: white;
-            font-weight: bold;
-            padding: 6px 12px;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-        }
-
-        .time-out-btn:disabled {
-            background-color: #888;
-            cursor: not-allowed;
-        }
-
-        .timed-out {
-            background-color: #f44336 !important;
-        }
-
-        #passwordModal {
-            position: fixed;
-            top: 0;
-            left: 0;
+        .container {
             width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            /* Darker overlay for better contrast */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+            margin: 0;
+            box-shadow: none;
         }
 
-        #passwordModal>div {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            text-align: center;
-            width: 350px;
-            max-width: 90%;
-            /* Prevent too wide on mobile */
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-            position: relative;
-            /* For potential close button */
-        }
-
-        #passwordModal h3 {
-            margin-top: 0;
-            color: #333;
-            font-size: 1.3em;
-        }
-
-        #passwordModal input {
+        table {
             width: 100%;
-            padding: 10px;
-            margin: 15px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-
-        #passwordModal div>div {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        #passwordModal button {
-            padding: 8px 20px;
             border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.2s;
         }
 
-        #passwordModal button:first-child {
-            background-color: #4CAF50;
-            color: white;
+        th, td {
+            padding: 4px;
+            font-size: 12px;
         }
 
-        #passwordModal button:first-child:hover {
-            background-color: #45a049;
-        }
-
-        #passwordModal button:last-child {
-            background-color: #ff5447;
-            color: white;
-        }
-
-        #passwordModal button:last-child:hover {
-            background-color: #d32f2f;
-        }
-
-        .delete-btn {
-            background-color: #ff5447;
-        }
-
-        .delete-btn:hover {
-            background-color: #d32f2f;
-        }
-
-        @media print {
-            body {
-                margin: 0;
-            }
-
-            .container {
-                width: 100%;
-                margin: 0;
-            }
-
-            table {
-                width: 100%;
-                border: none;
-            }
-
-            th,
-            td {
-                padding: 4px;
-                font-size: 12px;
-            }
-
-            .form-row,
-            .buttons,
-            .header,
-            .reminder,
-            .header-container nav,
-            .delete-controls {
-                display: none;
-            }
-
-            /* Hide checkboxes when printing */
-            input[type="checkbox"] {
-                display: none;
-            }
-        }
-
-        /* Added CSS for error message */
-        .error-message {
-            color: red;
-            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-            font-style: Bold;
-            font-size: 26px;
-            margin-top: 10px;
-            text-align: center;
-            display: none;
-            /* Hidden by default */
-        }
-        .admin-controls {
+        .form-group, .form-row,
+        .buttons, .header,
+        .reminder, .header-container nav,
+        .delete-controls {
             display: none;
         }
-        
-    </style>
+
+        input[type="checkbox"] {
+            display: none;
+        }
+    }
+</style>
 </head>
 
 <body>
@@ -374,38 +489,44 @@
                 <button type="button" onclick="addEntry()">Time In</button>
                 
                 <button type="button" id="adminBtn">Admin</button>
+            </div>
 
             <div class="buttons admin-controls">
                 <button type="button" onclick="window.print()">Print</button>
                 <button type="button" onclick="downloadExcel()">Download Word</button>
-                <button type="button" onclick="showDeleteConfirmation()">Clear Data</button>
+                <button type="button" id="clearBtn">Clear Data</button>
                 <button id="downloadPdfBtn" type="button">Download Graph</button>
-                <button class="delete-btn" id="deleteSelectedBtn" type="button" onclick="showDeleteConfirmation()">Delete Entries</button>
-
-                <!-- Optional: If keeping these -->
-                <canvas id="hiddenCanvas" style="display: none;"></canvas>
-                <div class="delete-controls">
-                    <button type="button" id="confirmDeleteBtn" style="background-color: #dc3545;">Confirm Delete</button>
-                    <button type="button" id="cancelDeleteBtn">Cancel</button>
-                </div>
+                <button type="button" id="deleteBtn">Delete Entries</button>
             </div>
 
-
-
-                <canvas id="usageChart" style="display: none;"></canvas> <!-- Hidden Chart -->
+            <div class="delete-controls admin-controls"> 
+                <button type="button" id="confirmDeleteBtn" class="confirm-delete-btn">Confirm Delete</button>
+                <button type="button" id="cancelDeleteBtn">Cancel</button>
             </div>
+
 
             <!-- Added error message element -->
             <div id="errorMessage" class="error-message" style="display: none; font-size: 20px;">Please enter your complete name!</div>
         </form>
+        
+        <!-- Clear Data Confirmation Popup -->
+        <div id="confirmClearPopup" class="popup">
+            <h3>Clear Table Data</h3>
+            <p>Are you sure you want to delete all table data?</p>
+            <div class="popup-buttons">
+                <button id="confirmClearBtn" class="danger-btn">Confirm Delete</button>
+                <button id="cancelClearBtn">Cancel</button>
+            </div>
+        </div>
+
         <table id="entriesTable">
             <thead>
                 <tr>
-                    <th class="select-column">Select</th>
+                    <th class="select-column" style="width: 30px;">Select</th>
                     <th>#</th>
-                    <th>Date</th>
                     <th>Name</th>
                     <th>Section</th>
+                    <th>Date</th>
                     <th>Time In</th>
                     <th>Time Out</th>
                     <th>Actions</th>
@@ -413,42 +534,84 @@
             </thead>
             <tbody id="tableBody"></tbody>
         </table>
-    </div>
-    <div id="passwordModal" style="display: none;">
-        <div>
-            <h3>Enter Password</h3>
-            <input type="password" id="passwordInput" placeholder="Enter Password" />
-            <div>
-                <button onclick="verifyPassword()">Submit</button>
-                <button onclick="closeModal()">Cancel</button>
-            </div>
+        <div class="pagination">
+            <button id="prevPageBtn" onclick="prevPage()">Previous</button>
+            <span id="pageInfo">Page 1</span>
+            <button id="nextPageBtn" onclick="nextPage()">Next</button>
         </div>
+
     </div>
+  
+    <canvas id="usageChart" style="display: none;"></canvas> <!-- Hidden Chart -->
+    <canvas id="hiddenCanvas" style="display: none;"></canvas>
+
     <script>
         const tableBody = document.getElementById('tableBody');
         let entries = JSON.parse(localStorage.getItem('libraryEntries')) || [];
+        let deleteMode = false;
+
+        let currentPage = 1;
+        const rowsPerPage = 10;
+
+        function getPaginatedEntries() {
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            return entries.slice(start, end);
+        }
+
+        function totalPages() {
+            return Math.ceil(entries.length / rowsPerPage);
+        }
+
+        function updatePaginationButtons() {
+            document.getElementById("prevPageBtn").disabled = currentPage === 1;
+            document.getElementById("nextPageBtn").disabled = currentPage === totalPages();
+            document.getElementById("pageInfo").textContent = `Page ${currentPage} of ${totalPages()}`;
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages()) {
+                currentPage++;
+                renderTable();
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        }
+
 
         function renderTable() {
-            tableBody.innerHTML = entries.map((entry, index) => `
-                <tr>
-                    <td><input type="checkbox" class="delete-checkbox" data-index="${index}"></td>
-                    <td>${entries.length - index}</td>
-                    <td>${formatDate(entry.date)}</td>
-                    <td>${entry.name}</td>
-                    <td>${entry.section}</td>
-                    <td>${entry.timeIn || 'N/A'}</td>
-                    <td>${entry.timeOut || 'N/A'}</td>
-                    <td>
-                        <button 
-                            class="time-out-btn ${entry.timeOut ? 'timed-out' : ''}" 
-                            onclick="timeOut(${index})" 
-                            ${entry.timeOut ? 'disabled' : ''}>
-                            ${entry.timeOut ? 'Timed Out' : 'Time Out'}
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
+            const paginatedEntries = getPaginatedEntries();
+            tableBody.innerHTML = paginatedEntries.map((entry, index) => {
+                const globalIndex = (currentPage - 1) * rowsPerPage + index;
+                return `
+                    <tr>
+                        <td class="select-column"><input type="checkbox" class="delete-checkbox" data-index="${globalIndex}"></td>
+                        <td>${entries.length - globalIndex}</td>
+                        <td>${entry.name}</td>
+                        <td>${entry.section}</td>
+                        <td>${formatDate(entry.date)}</td>
+                        <td>${entry.timeIn || 'N/A'}</td>
+                        <td>${entry.timeOut || 'N/A'}</td>
+                        <td>
+                            <button 
+                                class="time-out-btn ${entry.timeOut ? 'timed-out' : ''}" 
+                                onclick="timeOut(${globalIndex})" 
+                                ${entry.timeOut ? 'disabled' : ''}>
+                                ${entry.timeOut ? 'Timed Out' : 'Time Out'}
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            updatePaginationButtons();
         }
+
 
         function formatDate(date) {
             const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -498,6 +661,7 @@
                 timeIn: currentTime,
                 timeOut: null,
             });
+            currentPage = 1;
 
             localStorage.setItem('libraryEntries', JSON.stringify(entries));
             renderTable();
@@ -508,58 +672,6 @@
             entries[index].timeOut = new Date().toLocaleTimeString();
             localStorage.setItem('libraryEntries', JSON.stringify(entries));
             renderTable();
-        }
-
-        function showDeleteConfirmation() {
-            // Check if this is for deleting selected rows or clearing all data
-            const isDeleteSelected = this.event.target.id === 'deleteSelectedBtn';
-
-            if (isDeleteSelected) {
-                const checkedBoxes = document.querySelectorAll('.delete-checkbox:checked');
-                if (checkedBoxes.length === 0) {
-                    alert('Please select at least one entry to delete.');
-                    return;
-                }
-            }
-
-            document.getElementById('passwordModal').style.display = 'flex';
-            document.getElementById('passwordInput').focus();
-        }
-
-        function verifyPassword() {
-            const password = document.getElementById('passwordInput').value;
-            if (password !== 'Admin12345') {
-                alert('Incorrect password. Entries were not deleted.');
-                closeModal();
-                return;
-            }
-
-            const isDeleteSelected = document.querySelectorAll('.delete-checkbox:checked').length > 0;
-
-            if (isDeleteSelected) {
-                // Delete selected entries
-                const checkedBoxes = document.querySelectorAll('.delete-checkbox:checked');
-                const indexesToDelete = Array.from(checkedBoxes).map(checkbox =>
-                    parseInt(checkbox.getAttribute('data-index')))
-                    .sort((a, b) => b - a); // Sort in descending order to avoid index shifting issues
-
-                // Delete entries from highest index to lowest
-                indexesToDelete.forEach(index => {
-                    entries.splice(index, 1);
-                });
-            } else {
-                // Clear all data
-                entries = [];
-            }
-
-            localStorage.setItem('libraryEntries', JSON.stringify(entries));
-            renderTable();
-            closeModal();
-        }
-
-        function closeModal() {
-            document.getElementById('passwordModal').style.display = 'none';
-            document.getElementById('passwordInput').value = '';
         }
 
         function downloadExcel() {
@@ -617,9 +729,9 @@
                         ${entries.map((entry, index) => `
                             <tr>
                                 <td>${entries.length - index}</td>
-                                <td>${formatDate(entry.date)}</td>
                                 <td>${entry.name}</td>
                                 <td>${entry.section}</td>
+                                <td>${formatDate(entry.date)}</td>
                                 <td>${entry.timeIn}</td>
                                 <td>${entry.timeOut || 'N/A'}</td>
                                 <td>${entry.timeOut ? 'Timed Out' : 'Not Timed Out'}</td>
@@ -670,9 +782,8 @@
 
             // Define section order
             const sectionOrder = [
-                "Teacher", "7-Paul", "8-Jude", "9-Abraham", "9-Isaac",
-                "10-Luther", "11-HUMMS", "11-ABM", "11-STEM",
-                "12-HUMMS", "12-ABM", "12-STEM"
+                "Teacher", "7-Paul", "8-Jude", "9-Abraham", "10-Calvin", "10-Luther",
+                "11-HUMMS", "11-ABM", "11-STEM", "12-HUMMS", "12-ABM", "12-STEM"
             ];
 
             // Filter & sort labels based on defined order
@@ -755,28 +866,118 @@
             }, 1000); // Wait 1 second for chart rendering
         });
 
-        renderTable();
-
-        // Admin Button when clicked it shows admin buttons like print, clear table, download as word, download graph and delete entries 
-        // Password of EccAdmin1963! when admin button is clicked it needs a password
+        // Admin Button functionality
         document.getElementById("adminBtn").addEventListener("click", function () {
-        const adminControls = document.querySelector(".admin-controls");
+            const adminControls = document.querySelector(".admin-controls");
 
-        // If hidden, prompt for password
-        if (adminControls.style.display === "none" || adminControls.style.display === "") {
-            const password = prompt("Enter Admin Password:");
-            if (password === "EccAdmin1963!") {
-            adminControls.style.display = "flex";
+            // If hidden, prompt for password
+            if (adminControls.style.display === "none" || adminControls.style.display === "") {
+                const password = prompt("Enter Admin Password:");
+                if (password === "EccAdmin1963!") {
+                    adminControls.style.display = "flex";
+                } else {
+                    alert("Incorrect password. Access denied.");
+                }
             } else {
-            alert("Incorrect password. Access denied.");
+                // If visible, just hide without asking
+                adminControls.style.display = "none";
+                exitDeleteMode(); // Also exit delete mode if active
             }
-        } else {
-            // If visible, just hide without asking
-            adminControls.style.display = "none";
-        }
         });
-    </script>
-    
-</body>
 
+        // Delete functionality
+        document.getElementById('deleteBtn').addEventListener('click', function() {
+            enterDeleteMode();
+        });
+
+        document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
+            exitDeleteMode();
+        });
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+            const checkboxes = document.querySelectorAll('.delete-checkbox:checked');
+
+            if (checkboxes.length === 0) {
+                alert('Please select at least one record to delete.');
+                return;
+            }
+
+            const confirmDelete = confirm(`Are you sure you want to delete ${checkboxes.length} selected record(s)?`);
+            if (!confirmDelete) return;
+
+            // Get indexes of items to delete (sorted in descending order)
+            const indexesToDelete = Array.from(checkboxes)
+                .map(cb => parseInt(cb.dataset.index))
+                .sort((a, b) => b - a);
+
+            // Remove selected items from storage
+            indexesToDelete.forEach(index => {
+                entries.splice(index, 1);
+            });
+
+            // Save changes
+            localStorage.setItem('libraryEntries', JSON.stringify(entries));
+            currentPage = 1;
+            
+            // Refresh the display
+            renderTable();
+            exitDeleteMode();
+            alert(`${checkboxes.length} record(s) deleted successfully.`);
+        });
+
+        function enterDeleteMode() {
+            deleteMode = true;
+            document.getElementById('entriesTable').classList.add('show-delete-mode');
+            document.querySelector('.delete-controls').style.display = 'flex';
+            document.getElementById('deleteBtn').style.display = 'none';
+        }
+
+        function exitDeleteMode() {
+            deleteMode = false;
+            document.getElementById('entriesTable').classList.remove('show-delete-mode');
+            document.querySelector('.delete-controls').style.display = 'none';
+            document.getElementById('deleteBtn').style.display = 'block';
+            
+            // Uncheck all checkboxes
+            document.querySelectorAll('.delete-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+
+        // Clear data functionality
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            document.getElementById('confirmClearPopup').style.display = 'block';
+        });
+
+        document.getElementById('cancelClearBtn').addEventListener('click', function() {
+            document.getElementById('confirmClearPopup').style.display = 'none';
+        });
+
+        document.getElementById('confirmClearBtn').addEventListener('click', function() {
+            entries = [];
+            localStorage.setItem('libraryEntries', JSON.stringify(entries));
+            renderTable();
+            document.getElementById('confirmClearPopup').style.display = 'none';
+            alert('All table data has been cleared.');
+        });
+
+        // Click outside to cancel delete mode
+        document.addEventListener('click', function(e) {
+            if (!deleteMode) return;
+
+            // Check if click is inside the table or delete controls
+            const isClickInsideTable = e.target.closest('#entriesTable');
+            const isClickInDeleteControls = e.target.closest('.delete-controls');
+            const isClickOnDeleteBtn = e.target.closest('#deleteBtn');
+
+            // Only exit delete mode if clicking completely outside relevant elements
+            if (!isClickInsideTable && !isClickInDeleteControls && !isClickOnDeleteBtn) {
+                exitDeleteMode();
+            }
+        });
+
+        // Initialize the table
+        renderTable();
+    </script>
+</body>
 </html>

@@ -90,6 +90,7 @@
             max-width: 80%;
             width: 1200px;
             margin-top: 20px;
+            margin-bottom: 20px;
         }
 
         .header {
@@ -98,7 +99,7 @@
             text-align: center;
             font-weight: bold;
             font-size: 24px;
-            margin-bottom: 3px;
+            margin-bottom: 20px;
             padding: 10px;
         }
 
@@ -121,7 +122,6 @@
 
         input,
         select {
-            text-transform: capitalize;
             padding: 6px;
             border: 1px solid #ccc;
             border-radius: 5px;
@@ -156,12 +156,11 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 3px;
+            margin-top: 20px;
             background: linear-gradient(to bottom, #ffffff, #f0f0f0);
             color: black;
             border-radius: 10px;
             overflow: hidden;
-            padding: 10px;
         }
 
         table,
@@ -173,13 +172,24 @@
         th,
         td {
             text-align: center;
-            padding: 5px;
+            padding: 8px;
             font-size: 15px;
         }
 
         th {
             background-color: royalblue;
             color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .returned {
+            background-color: red !important;
+            color: white;
+            pointer-events: none;
+            cursor: not-allowed;
         }
 
         .password-popup {
@@ -220,6 +230,21 @@
             font-size: 24px;
         }
 
+        .chart-container {
+            margin-top: 30px;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        canvas {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
         .wordload {
             display: flex;
             position: fixed;
@@ -235,7 +260,6 @@
             font-size: 24px;
         }
 
-        /* Add this to hide both header and checkbox cells completely when not in delete mode */
         th.select-header,
         td.select-cell {
             width: 50px !important;
@@ -264,11 +288,6 @@
             width: 30px;
         }
 
-        /* Add red color for confirmation state */
-        #deleteBtn.confirm-mode {
-            background-color: #dc3545 !important;
-        }
-
         .delete-controls {
             display: none;
             justify-content: center;
@@ -280,9 +299,8 @@
             display: flex;
         }
 
-        /* Add this to highlight selected rows */
-        tr.selected-row {
-            background-color: #fff3cd !important;
+        #deleteBtn.confirm-mode {
+            background-color: #dc3545 !important;
         }
 
         .pagination {
@@ -466,9 +484,9 @@
                 <tr>
                     <th class="select-header">Select</th>
                     <th>#</th>
-                    <th>Date & Time</th>
                     <th>Name</th>
                     <th>Section</th>
+                    <th>Date & Time</th>
                     <th>Voucher Code</th>
                 </tr>
             </thead>
@@ -531,7 +549,7 @@
             "EfBSHZmYEE3", "ufznayHaasN", "VFnDyPyRBsR", "NLu3HuwDwrY", "AAPmcRshTYb", "ay3KJRTMxei", "8pt2vPzhysR", "NqR5hJD2Cdm", "h8XkG4zbHYe", "VFPjQXWZGqL", "uxfiPbvRBXr", "U26DrLTRnBd", "EZfwHvQTLRf", "bYMFyEMiBi53", "j5rPTwSSZnV", "decZEEQFLcr", "TtsXLB2w6u7", "6rieWtAPmmB", "incS6WTr5tA",
             "nnUUreWdxEb", "xw45p7ZBrSk", "TZbKGapkq8G"
         ];
-        const rowsPerPage = 20; // Number of rows per page
+        const rowsPerPage = 10; // Number of rows per page
         let currentPage = 1;    // Current page number
 
         let usedVouchers = JSON.parse(localStorage.getItem('usedVouchers')) || [];
@@ -564,9 +582,9 @@
                 const row = `<tr>
             <td class="select-cell"><input type="checkbox" class="delete-checkbox" data-index="${index}"></td>
             <td>${rowNumber}</td>
-            <td>${data.dateTime}</td>
             <td>${data.name}</td>
             <td>${data.section}</td>
+            <td>${data.dateTime}</td>
             <td>${data.voucherCode}</td>
         </tr>`;
                 tableBody.insertAdjacentHTML('beforeend', row);

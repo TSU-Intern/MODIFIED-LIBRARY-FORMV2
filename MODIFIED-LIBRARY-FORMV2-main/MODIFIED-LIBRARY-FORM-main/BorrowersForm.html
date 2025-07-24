@@ -103,7 +103,7 @@
             justify-content: center;
             align-items: center;
             gap: 10px;
-            margin-bottom: 10px;
+            
             flex-wrap: wrap;
         }
 
@@ -324,6 +324,27 @@
             font-weight: bold;
             color: black;
         }
+        
+        /* New styles for admin controls */
+        .admin-controls {
+            display: none;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .admin-controls.active {
+            display: flex;
+        }
+        
+        #adminBtn {
+            background-color: royalblue;
+        }
+        
+        #adminBtn:hover {
+            background-color: darkblue;
+        }
     </style>
 </head>
 
@@ -342,726 +363,761 @@
     </div>
 
     <!-- Main Content -->
-        <div class="container">
-            <div class="header">BORROWERS FORM</div>
+    <div class="container">
+        <div class="header">BORROWERS FORM</div>
 
-            <form id="borrowersForm" onsubmit="event.preventDefault(); addBorrower();">
-                <div class="form-group">
-                    <label for="name">Name:</label>
-                    <input type="text" id="name" placeholder="Enter Name" required>
+        <form id="borrowersForm" onsubmit="event.preventDefault(); addBorrower();">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" placeholder="Enter Name" required>
 
-                    <label for="section">Section:</label>
-                    <select id="section" required>
-                        <option value="">Select Section</option>
-                        <option value="7-Paul">7-Paul</option>
-                        <option value="8-Jude">8-Jude</option>
-                        <option value="9-Abraham">9-Abraham</option>
-                        <option value="10-Calvin">10-Calvin</option>
-                        <option value="10-Luther">10-Luther</option>
-                        <option value="11-HUMMS">11-HUMMS</option>
-                        <option value="11-ABM">11-ABM</option>
-                        <option value="11-STEM">11-STEM</option>
-                        <option value="12-HUMMS">12-HUMMS</option>
-                        <option value="12-ABM">12-ABM</option>
-                        <option value="12-STEM">12-STEM</option>
-                    </select>
-                </div>
+                <label for="section">Section:</label>
+                <select id="section" required>
+                    <option value="">Select Section</option>
+                    <option value="7-Paul">7-Paul</option>
+                    <option value="8-Jude">8-Jude</option>
+                    <option value="9-Abraham">9-Abraham</option>
+                    <option value="10-Calvin">10-Calvin</option>
+                    <option value="10-Luther">10-Luther</option>
+                    <option value="11-HUMMS">11-HUMMS</option>
+                    <option value="11-ABM">11-ABM</option>
+                    <option value="11-STEM">11-STEM</option>
+                    <option value="12-HUMMS">12-HUMMS</option>
+                    <option value="12-ABM">12-ABM</option>
+                    <option value="12-STEM">12-STEM</option>
+                </select>
+            </div>
 
-                <div class="form-group">
-                    <label for="bookTitle">Title of the Book(s):</label>
-                    <input type="text" id="bookTitle" placeholder="Enter Book Title(s)" required>
-                    <label for="accountNo">Account No.:</label>
-                    <input type="text" id="accountNo" placeholder="Enter Account No." required>
-                </div>
-
-                <div class="buttons">
+            <div class="form-group">
+                <label for="bookTitle">Title of the Book(s):</label>
+                <input type="text" id="bookTitle" placeholder="Enter Book Title(s)" required>
+                <label for="bookNo">Book No.:</label>
+                <input type="text" id="bookNo" placeholder="Enter Book No." required>
+                <div class="buttons" style="margin-bottom: 10px;">
                     <button type="submit">Submit</button>
-                    <button type="button" id="clearBtn">Clear Table</button>
-                    <button type="button" id="printBtn">Print</button>
-                    <button type="button" id="downloadWordBtn">Download as Word</button>
-                    <button type="button" id="downloadPdfBtn">Download Graph</button>
-                    <button type="button" id="deleteBtn">Delete Entries</button>
-                    <div class="delete-controls">
-                        <button type="button" id="confirmDeleteBtn" style="background-color: #dc3545;">Confirm
-                            Delete</button>
-                        <button type="button" id="cancelDeleteBtn">Cancel</button>
-                    </div>
+                    <button type="button" id="adminBtn">Admin</button>
                 </div>
-            </form>
-
-            <table id="borrowersTable">
-                <thead>
-                    <tr>
-                        <th class="select-header">Select</th>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Section</th>
-                        <th>Title of the Book(s)</th>
-                        <th>Account No.</th>
-                        <th>Date Borrowed</th>
-                        <th>Return Date</th>
-                        <th>Actions</th>
-                        <td>
-                        </td>
-                    </tr>
-                </thead>
-                <tbody id="borrowersTableBody">
-                    <!-- Dynamic rows will appear here -->
-                </tbody>
-            </table>
-            <div class="pagination">
-                <button id="prevPage">Previous</button>
-                <span id="pageInfo">Page 1 of 1</span>
-                <button id="nextPage">Next</button>
             </div>
 
-
-
-        </div>
-
-        <!-- Password Form for clearing table -->
-        <div id="passwordForm" class="password-popup">
-            <h3>Clear Table Data</h3>
-            <p>Enter password to confirm:</p>
-            <input type="password" id="clearPassword" placeholder="Enter Password" required>
-            <div>
-                <button type="button" id="confirmClearBtn">Confirm</button>
-                <button type="button" id="cancelClearBtn">Cancel</button>
+            
+            <!-- Admin controls (hidden by default) -->
+            <div class="admin-controls" id="adminControls">
+                <button type="button" id="clearBtn">Clear Table</button>
+                <button type="button" id="printBtn">Print</button>
+                <button type="button" id="downloadWordBtn">Download as Word</button>
+                <button type="button" id="downloadPdfBtn">Download Graph</button>
+                <button type="button" id="deleteBtn">Delete Entries</button>
+                <div class="delete-controls">
+                    <button type="button" id="confirmDeleteBtn" style="background-color: #dc3545;">Confirm Delete</button>
+                    <button type="button" id="cancelDeleteBtn">Cancel</button>
+                </div>
             </div>
+        </form>
+
+        <table id="borrowersTable">
+            <thead>
+                <tr>
+                    <th class="select-header">Select</th>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Section</th>
+                    <th>Title of the Book(s)</th>
+                    <th>Book No.</th>
+                    <th>Date Borrowed</th>
+                    <th>Return Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="borrowersTableBody">
+                <!-- Dynamic rows will appear here -->
+            </tbody>
+        </table>
+        <div class="pagination">
+            <button id="prevPage">Previous</button>
+            <span id="pageInfo">Page 1 of 1</span>
+            <button id="nextPage">Next</button>
         </div>
+    </div>
 
-        <!-- Loading indicator -->
-        <div id="loadingIndicator" class="loading">
-            Generating PDF Report...
+    <!-- Password Form for clearing table -->
+    <div id="passwordForm" class="password-popup">
+        <h3>Clear Table Data</h3>
+        <p>Enter password to confirm:</p>
+        <input type="password" id="clearPassword" placeholder="Enter Password" required>
+        <div>
+            <button type="button" id="confirmClearBtn">Confirm</button>
+            <button type="button" id="cancelClearBtn">Cancel</button>
         </div>
+    </div>
 
-        <script>
-            const password = "Admin12345"; // Set the password for both buttons
-            const tableBody = document.getElementById("borrowersTableBody");
-            let borrowersChart = null;
+    <!-- Loading indicator -->
+    <div id="loadingIndicator" class="loading">
+        Generating PDF Report...
+    </div>
 
-            // Name auto-capitalization
-            document.getElementById("name").addEventListener("input", function () {
-                this.value = this.value
-                    .toLowerCase()
-                    .split(" ")
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(" ");
-            });
+    <script>
+        const password = "EccAdmin1963!"; // Set the password for both buttons
+        const tableBody = document.getElementById("borrowersTableBody");
+        let borrowersChart = null;
 
-            // Book title auto-capitalization
-            document.getElementById("bookTitle").addEventListener("input", function () {
-                this.value = this.value
-                    .toLowerCase()
-                    .split(" ")
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(" ");
-            });
+        // Name auto-capitalization
+        document.getElementById("name").addEventListener("input", function () {
+            this.value = this.value
+                .toLowerCase()
+                .split(" ")
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(" ");
+        });
 
-            window.onload = function () {
-                const storedData = localStorage.getItem("borrowersData");
-                if (storedData) {
-                    const borrowersData = JSON.parse(storedData);
-                    populateTable(borrowersData);
-                    if (document.getElementById("borrowersChart")) {
-                        generateChart(borrowersData);
-                    }
-                }
-            };
-            function addBorrower() {
-                const name = document.getElementById("name").value.trim();
-                const section = document.getElementById("section").value;
-                const bookTitle = document.getElementById("bookTitle").value.trim();
-                const accountNo = document.getElementById("accountNo").value.trim();
+        // Book title auto-capitalization
+        document.getElementById("bookTitle").addEventListener("input", function () {
+            this.value = this.value
+                .toLowerCase()
+                .split(" ")
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(" ");
+        });
 
-                // Validate full name (must contain at least one space)
-                if (!name.includes(" ")) {
-                    alert("Please enter your full name (First and Last name).");
-                    return;
-                }
-                if (name.split(" ").length < 2) {
-                    alert("Please enter your full name (First and Last name).");
-                    return;
-                }
+        // Toggle admin controls
+        document.getElementById("adminBtn").addEventListener("click", function() {
+            const adminControls = document.getElementById("adminControls");
+            const passwordInput = prompt("Enter admin password:");
+            
+            if (passwordInput === password) {
+                adminControls.classList.toggle("active");
+                this.textContent = adminControls.classList.contains("active") ? 
+                    "Hide Admin Controls" : "Admin Controls";
+            } else if (passwordInput !== null) {
+                alert("Incorrect password");
+            }
+        });
 
-                // Validate other fields
-                if (!section || !bookTitle || !accountNo) {
-                    alert("Please fill out all fields.");
-                    return;
-                }
-
-                const dateBorrowed = new Date();
-                const newRow = {
-                    name,
-                    section,
-                    bookTitle,
-                    accountNo,
-                    dateBorrowed: dateBorrowed.toISOString(),
-                    returnDate: ""
-                };
-
-                const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
-                storedData.unshift(newRow);
-                localStorage.setItem("borrowersData", JSON.stringify(storedData));
-
-                populateTable(storedData);
-
-                // Only generate chart if canvas exists
+        window.onload = function () {
+            const storedData = localStorage.getItem("borrowersData");
+            if (storedData) {
+                const borrowersData = JSON.parse(storedData);
+                populateTable(borrowersData);
                 if (document.getElementById("borrowersChart")) {
-                    generateChart(storedData);
-                }
-
-                document.getElementById("borrowersForm").reset();
-            }
-
-
-
-
-            function populateTable(data) {
-                tableBody.innerHTML = '';
-
-                data.forEach((rowData, index) => {
-                    const rowNumber = data.length - index;
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
-                <td class="select-cell"><input type="checkbox" class="delete-checkbox" data-index="${index}"></td>
-                <td>${rowNumber}</td>
-                <td>${rowData.name}</td>
-                <td>${rowData.section}</td>
-                <td>${rowData.bookTitle}</td>
-                <td>${rowData.accountNo}</td>
-                <td>${formatDate(rowData.dateBorrowed)}</td>
-                <td class="return-date-cell">${rowData.returnDate ? formatDate(rowData.returnDate) : ''}</td>
-                <td>
-                    ${rowData.returnDate ?
-                            '<button class="returned">Returned</button>' :
-                            '<button onclick="markAsReturned(this)">Return</button>'}
-                </td>
-            `;
-                    tableBody.appendChild(row);
-                });
-            }
-            function formatDate(isoString) {
-                if (!isoString) return '';
-                const date = new Date(isoString);
-                return date.toLocaleDateString('en-PH', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-            }
-
-            function markAsReturned(button) {
-                const passwordInput = prompt("Enter password to mark as returned:");
-                if (passwordInput === password) {
-                    const row = button.closest('tr');
-                    if (!row) {
-                        console.error("Could not find parent row");
-                        return;
-                    }
-
-                    // Find the return date cell (7th cell, index 7)
-                    const cells = row.cells;
-                    if (cells.length < 9) {
-                        console.error("Row doesn't have enough cells");
-                        return;
-                    }
-
-                    const returnDateCell = cells[7]; // 8th column (0-based index 7)
-                    const returnDate = new Date().toISOString();
-                    returnDateCell.textContent = formatDate(returnDate);
-                    button.textContent = "Returned";
-                    button.classList.add("returned");
-                    button.onclick = null;
-
-                    // Update localStorage
-                    const rowIndex = parseInt(row.querySelector(".delete-checkbox").dataset.index);
-                    const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
-
-                    if (rowIndex >= 0 && rowIndex < storedData.length) {
-                        storedData[rowIndex].returnDate = returnDate;
-                        localStorage.setItem("borrowersData", JSON.stringify(storedData));
-
-                        // Regenerate chart if needed
-                        if (document.getElementById("borrowersChart")) {
-                            generateChart(storedData);
-                        }
-                    } else {
-                        console.error("Invalid row index");
-                    }
-                } else if (passwordInput !== null) {
-                    alert("Incorrect password. Try again.");
+                    generateChart(borrowersData);
                 }
             }
-            document.getElementById('confirmClearBtn').addEventListener('click', function () {
-                const enteredPassword = document.getElementById('clearPassword').value.trim();
+        };
+        
+        function addBorrower() {
+            const name = document.getElementById("name").value.trim();
+            const section = document.getElementById("section").value;
+            const bookTitle = document.getElementById("bookTitle").value.trim();
+            const bookNo = document.getElementById("bookNo").value.trim();
 
-                if (enteredPassword === password) {
-                    if (confirm("Are you sure you want to clear all borrower data?")) {
-                        tableBody.innerHTML = '';
-                        localStorage.removeItem('borrowersData');
+            // Validate full name (must contain at least one space)
+            if (!name.includes(" ")) {
+                alert("Please enter your full name (First and Last name).");
+                return;
+            }
+            if (name.split(" ").length < 2) {
+                alert("Please enter your full name (First and Last name).");
+                return;
+            }
+
+            // Validate other fields
+            if (!section || !bookTitle || !bookNo) {
+                alert("Please fill out all fields.");
+                return;
+            }
+
+            const dateBorrowed = new Date();
+            const newRow = {
+                name,
+                section,
+                bookTitle,
+                bookNo,
+                dateBorrowed: dateBorrowed.toISOString(),
+                returnDate: ""
+            };
+
+            const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
+            storedData.unshift(newRow);
+            localStorage.setItem("borrowersData", JSON.stringify(storedData));
+
+            populateTable(storedData);
+
+            // Only generate chart if canvas exists
+            if (document.getElementById("borrowersChart")) {
+                generateChart(storedData);
+            }
+
+            document.getElementById("borrowersForm").reset();
+        }
+
+        function populateTable(data) {
+            tableBody.innerHTML = '';
+
+            data.forEach((rowData, index) => {
+                const rowNumber = data.length - index;
+                const row = document.createElement("tr");
+                row.innerHTML = `
+            <td class="select-cell"><input type="checkbox" class="delete-checkbox" data-index="${index}"></td>
+            <td>${rowNumber}</td>
+            <td>${rowData.name}</td>
+            <td>${rowData.section}</td>
+            <td>${rowData.bookTitle}</td>
+            <td>${rowData.bookNo}</td>
+            <td>${formatDate(rowData.dateBorrowed)}</td>
+            <td class="return-date-cell">${rowData.returnDate ? formatDate(rowData.returnDate) : ''}</td>
+            <td>
+                ${rowData.returnDate ?
+                    '<button class="returned">Returned</button>' :
+                    '<button onclick="markAsReturned(this)">Return</button>'}
+            </td>
+        `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        function formatDate(isoString) {
+            if (!isoString) return '';
+            const date = new Date(isoString);
+            return date.toLocaleDateString('en-PH', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function markAsReturned(button) {
+            const passwordInput = prompt("Enter password to mark as returned:");
+            if (passwordInput === password) {
+                const row = button.closest('tr');
+                if (!row) {
+                    console.error("Could not find parent row");
+                    return;
+                }
+
+                // Find the return date cell (7th cell, index 7)
+                const cells = row.cells;
+                if (cells.length < 9) {
+                    console.error("Row doesn't have enough cells");
+                    return;
+                }
+
+                const returnDateCell = cells[7]; // 8th column (0-based index 7)
+                const returnDate = new Date().toISOString();
+                returnDateCell.textContent = formatDate(returnDate);
+                button.textContent = "Returned";
+                button.classList.add("returned");
+                button.onclick = null;
+
+                // Update localStorage
+                const rowIndex = parseInt(row.querySelector(".delete-checkbox").dataset.index);
+                const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
+
+                if (rowIndex >= 0 && rowIndex < storedData.length) {
+                    storedData[rowIndex].returnDate = returnDate;
+                    localStorage.setItem("borrowersData", JSON.stringify(storedData));
+
+                    // Regenerate chart if needed
+                    if (document.getElementById("borrowersChart")) {
+                        generateChart(storedData);
                     }
                 } else {
-                    alert("Incorrect password");
+                    console.error("Invalid row index");
                 }
-                document.getElementById('passwordForm').style.display = 'none';
-                document.getElementById('clearPassword').value = '';
-            });
+            } else if (passwordInput !== null) {
+                alert("Incorrect password. Try again.");
+            }
+        }
+        
+        document.getElementById('confirmClearBtn').addEventListener('click', function () {
+            const enteredPassword = document.getElementById('clearPassword').value.trim();
 
-            document.getElementById('cancelClearBtn').addEventListener('click', function () {
-                document.getElementById('passwordForm').style.display = 'none';
-                document.getElementById('clearPassword').value = '';
-            });
-            // Add this code for the print functionality
-            document.getElementById('printBtn').addEventListener('click', function () {
-                const printWindow = window.open('', '', 'height=600,width=800');
-                const title = `<h1 style="text-align: center;">ECC Borrowers Form</h1>`;
-                const style = `
-            <style>
-                body { font-family: Arial, sans-serif; }
-                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                th, td { padding: 8px; text-align: center; border: 1px solid #ddd; }
-                th { background-color: #1E3A8A; color: white; }
-                tr:nth-child(even) { background-color: #f2f2f2; }
-                .returned { background-color: red; color: white; }
-            </style>
-        `;
-
-                printWindow.document.write(`
-            <html>
-                <head><title>Print Borrowers</title>${style}</head>
-                <body>
-                    ${title}
-                    ${document.getElementById("borrowersTable").outerHTML}
-                </body>
-            </html>
-        `);
-                printWindow.document.close();
-                printWindow.print();
-            });
-            // Function to download as Word
-            document.getElementById('downloadWordBtn').addEventListener('click', function () {
-                const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
-
-                if (storedData.length === 0) {
-                    alert("No data available to generate the report.");
-                    return;
+            if (enteredPassword === password) {
+                if (confirm("Are you sure you want to clear all borrower data?")) {
+                    tableBody.innerHTML = '';
+                    localStorage.removeItem('borrowersData');
                 }
+            } else {
+                alert("Incorrect password");
+            }
+            document.getElementById('passwordForm').style.display = 'none';
+            document.getElementById('clearPassword').value = '';
+        });
 
-                // Show loading indicator
-                const wordLoadingIndicator = document.createElement("div");
-                wordLoadingIndicator.className = "wordload";
-                wordLoadingIndicator.textContent = "Generating Word Document...";
-                document.body.appendChild(wordLoadingIndicator);
+        document.getElementById('cancelClearBtn').addEventListener('click', function () {
+            document.getElementById('passwordForm').style.display = 'none';
+            document.getElementById('clearPassword').value = '';
+        });
+        
+        // Add this code for the print functionality
+        document.getElementById('printBtn').addEventListener('click', function () {
+            const printWindow = window.open('', '', 'height=600,width=800');
+            const title = `<h1 style="text-align: center;">ECC Borrowers Form</h1>`;
+            const style = `
+        <style>
+            body { font-family: Arial, sans-serif; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { padding: 8px; text-align: center; border: 1px solid #ddd; }
+            th { background-color: #1E3A8A; color: white; }
+            tr:nth-child(even) { background-color: #f2f2f2; }
+            .returned { background-color: red; color: white; }
+        </style>
+    `;
 
-                // Create HTML content with all data
-                const title = `<h1 style="text-align: center;">ECC Library Borrowers Report</h1>`;
-                const subtitle = `<p style="text-align: center;">Generated on ${new Date().toLocaleString()}</p>`;
+            printWindow.document.write(`
+        <html>
+            <head><title>Print Borrowers</title>${style}</head>
+            <body>
+                ${title}
+                ${document.getElementById("borrowersTable").outerHTML}
+            </body>
+        </html>
+    `);
+            printWindow.document.close();
+            printWindow.print();
+        });
+        
+        // Function to download as Word
+        document.getElementById('downloadWordBtn').addEventListener('click', function () {
+            const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
 
-                const tableHeader = `
-            <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Section</th>
-                        <th>Book Title</th>
-                        <th>Account No.</th>
-                        <th>Date Borrowed</th>
-                        <th>Return Date</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-                const tableRows = storedData.map((row, index) => `
-            <tr>
-                <td>${storedData.length - index}</td>
-                <td>${row.name}</td>
-                <td>${row.section}</td>
-                <td>${row.bookTitle}</td>
-                <td>${row.accountNo}</td>
-                <td>${formatDate(row.dateBorrowed)}</td>
-                <td>${row.returnDate ? formatDate(row.returnDate) : 'N/A'}</td>
-                <td>${row.returnDate ? 'Returned' : 'Not Returned'}</td>
-            </tr>
-        `).join('');
-
-                const tableFooter = `</tbody></table>`;
-
-                const summary = `
-            <div style="margin-top: 20px;">
-                <h3>Summary</h3>
-                <p>Total Books Borrowed: ${storedData.length}</p>
-                <p>Books Returned: ${storedData.filter(b => b.returnDate).length}</p>
-                <p>Books Not Returned: ${storedData.filter(b => !b.returnDate).length}</p>
-            </div>
-        `;
-
-                const style = `
-            <style>
-                body { font-family: Arial, sans-serif; }
-                table { width: 100%; border-collapse: collapse; }
-                th, td { padding: 8px; text-align: center; border: 1px solid #ddd; }
-                th { background-color: #1E3A8A; color: white; }
-                tr:nth-child(even) { background-color: #f2f2f2; }
-                .returned { color: green; }
-                .not-returned { color: red; }
-            </style>
-        `;
-
-                const htmlContent = style + title + subtitle + tableHeader + tableRows + tableFooter + summary;
-                const blob = new Blob([htmlContent], { type: "application/msword" });
-
-                setTimeout(() => {
-                    const link = document.createElement("a");
-                    link.href = URL.createObjectURL(blob);
-                    link.download = "ECC_Borrowers_Report.doc";
-                    link.click();
-                    document.body.removeChild(wordLoadingIndicator);
-                }, 1000);
-            });
-
-            function generateCombinedChartData(data) {
-                const sectionOrder = [
-                    "7-Paul", "8-Jude", "9-Abraham", "9-Isaac",
-                    "10-Luther", "11-HUMMS", "11-ABM", "11-STEM",
-                    "12-HUMMS", "12-ABM", "12-STEM"
-                ];
-
-                const labels = sectionOrder.filter(section =>
-                    data.some(borrower => borrower.section === section)
-                );
-
-                const returnedData = labels.map(label =>
-                    data.filter(borrower => borrower.section === label && borrower.returnDate).length
-                );
-
-                const notReturnedData = labels.map(label =>
-                    data.filter(borrower => borrower.section === label && !borrower.returnDate).length
-                );
-
-                const totalBorrowersData = labels.map(label =>
-                    data.filter(borrower => borrower.section === label).length
-                );
-
-                return {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Returned',
-                            data: returnedData,
-                            backgroundColor: 'rgba(50, 205, 50, 0.7)', // Green
-                            borderColor: 'rgba(50, 205, 50, 1)',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'Not Returned',
-                            data: notReturnedData,
-                            backgroundColor: 'rgba(220, 20, 60, 0.7)', // Red
-                            borderColor: 'rgba(220, 20, 60, 1)',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'Total Borrowers',
-                            data: totalBorrowersData,
-                            backgroundColor: 'rgba(65, 105, 225, 0.7)', // Royal Blue
-                            borderColor: 'rgba(65, 105, 225, 1)',
-                            borderWidth: 1
-                        }
-                    ]
-                };
+            if (storedData.length === 0) {
+                alert("No data available to generate the report.");
+                return;
             }
 
-            // Function to download PDF report
-            document.getElementById('downloadPdfBtn').addEventListener('click', function () {
-                const storedData = JSON.parse(localStorage.getItem('borrowersData')) || [];
+            // Show loading indicator
+            const wordLoadingIndicator = document.createElement("div");
+            wordLoadingIndicator.className = "wordload";
+            wordLoadingIndicator.textContent = "Generating Word Document...";
+            document.body.appendChild(wordLoadingIndicator);
 
-                if (storedData.length === 0) {
-                    alert("No data available to generate the report.");
-                    return;
-                }
+            // Create HTML content with all data
+            const title = `<h1 style="text-align: center;">ECC Library Borrowers Report</h1>`;
+            const subtitle = `<p style="text-align: center;">Generated on ${new Date().toLocaleString()}</p>`;
 
-                // Show loading indicator
-                document.getElementById('loadingIndicator').style.display = 'flex';
+            const tableHeader = `
+        <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Section</th>
+                    <th>Book Title</th>
+                    <th>Book No.</th>
+                    <th>Date Borrowed</th>
+                    <th>Return Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
 
-                setTimeout(() => {
-                    const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF();
+            const tableRows = storedData.map((row, index) => `
+        <tr>
+            <td>${storedData.length - index}</td>
+            <td>${row.name}</td>
+            <td>${row.section}</td>
+            <td>${row.bookTitle}</td>
+            <td>${row.bookNo}</td>
+            <td>${formatDate(row.dateBorrowed)}</td>
+            <td>${row.returnDate ? formatDate(row.returnDate) : 'N/A'}</td>
+            <td>${row.returnDate ? 'Returned' : 'Not Returned'}</td>
+        </tr>
+    `).join('');
 
-                    // Title
-                    doc.setFont("helvetica", "bold");
-                    doc.setFontSize(26);
-                    const pageWidth = doc.internal.pageSize.getWidth();
-                    doc.text("ECC Library Borrowers Report", pageWidth / 2, 20, { align: "center" });
+            const tableFooter = `</tbody></table>`;
 
-                    // Calculate statistics
-                    const totalBooks = storedData.length;
-                    const returnedBooks = storedData.filter(b => b.returnDate).length;
-                    const notReturnedBooks = totalBooks - returnedBooks;
+            const summary = `
+        <div style="margin-top: 20px;">
+            <h3>Summary</h3>
+            <p>Total Books Borrowed: ${storedData.length}</p>
+            <p>Books Returned: ${storedData.filter(b => b.returnDate).length}</p>
+            <p>Books Not Returned: ${storedData.filter(b => !b.returnDate).length}</p>
+        </div>
+    `;
 
-                    // Summary Statistics
-                    doc.setFontSize(14);
-                    doc.text("Summary Statistics", 15, 40);
+            const style = `
+        <style>
+            body { font-family: Arial, sans-serif; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { padding: 8px; text-align: center; border: 1px solid #ddd; }
+            th { background-color: #1E3A8A; color: white; }
+            tr:nth-child(even) { background-color: #f2f2f2; }
+            .returned { color: green; }
+            .not-returned { color: red; }
+        </style>
+    `;
 
-                    // Colored statistics
-                    doc.setFontSize(12);
-                    doc.setTextColor(65, 105, 225); // Blue
-                    doc.text(`Total Books Borrowed: ${totalBooks}`, 15, 50);
-                    doc.setTextColor(50, 205, 50); // Green
-                    doc.text(`Books Returned: ${returnedBooks}`, 15, 60);
-                    doc.setTextColor(220, 20, 60); // Red
-                    doc.text(`Books Not Returned: ${notReturnedBooks}`, 15, 70);
-                    doc.setTextColor(0, 0, 0); // Reset
+            const htmlContent = style + title + subtitle + tableHeader + tableRows + tableFooter + summary;
+            const blob = new Blob([htmlContent], { type: "application/msword" });
 
-                    // Create canvas for combined chart
-                    const combinedCanvas = document.createElement("canvas");
-                    combinedCanvas.width = 600;
-                    combinedCanvas.height = 400;
-                    combinedCanvas.style.display = "none";
-                    document.body.appendChild(combinedCanvas);
+            setTimeout(() => {
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = "ECC_Borrowers_Report.doc";
+                link.click();
+                document.body.removeChild(wordLoadingIndicator);
+            }, 1000);
+        });
 
-                    // Generate combined chart data
-                    const combinedChartData = generateCombinedChartData(storedData);
+        function generateCombinedChartData(data) {
+            const sectionOrder = [
+                "7-Paul", "8-Jude", "9-Abraham", "9-Isaac",
+                "10-Luther", "11-HUMMS", "11-ABM", "11-STEM",
+                "12-HUMMS", "12-ABM", "12-STEM"
+            ];
 
-                    // Combined Bar Chart
-                    new Chart(combinedCanvas.getContext("2d"), {
-                        type: "bar",
-                        data: combinedChartData,
-                        options: {
-                            responsive: false,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: { display: true },
-                                title: {
-                                    display: true,
-                                    text: 'Borrowers by Section (Returned, Not Returned, Total)',
-                                    font: { size: 16, weight: 'bold' }
-                                },
-                                tooltip: {
-                                    callbacks: {
-                                        label: function (context) {
-                                            return `${context.dataset.label}: ${context.raw}`;
-                                        }
-                                    }
-                                }
+            const labels = sectionOrder.filter(section =>
+                data.some(borrower => borrower.section === section)
+            );
+
+            const returnedData = labels.map(label =>
+                data.filter(borrower => borrower.section === label && borrower.returnDate).length
+            );
+
+            const notReturnedData = labels.map(label =>
+                data.filter(borrower => borrower.section === label && !borrower.returnDate).length
+            );
+
+            const totalBorrowersData = labels.map(label =>
+                data.filter(borrower => borrower.section === label).length
+            );
+
+            return {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Returned',
+                        data: returnedData,
+                        backgroundColor: 'rgba(50, 205, 50, 0.7)', // Green
+                        borderColor: 'rgba(50, 205, 50, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Not Returned',
+                        data: notReturnedData,
+                        backgroundColor: 'rgba(220, 20, 60, 0.7)', // Red
+                        borderColor: 'rgba(220, 20, 60, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Total Borrowers',
+                        data: totalBorrowersData,
+                        backgroundColor: 'rgba(65, 105, 225, 0.7)', // Royal Blue
+                        borderColor: 'rgba(65, 105, 225, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            };
+        }
+
+        // Function to download PDF report
+        document.getElementById('downloadPdfBtn').addEventListener('click', function () {
+            const storedData = JSON.parse(localStorage.getItem('borrowersData')) || [];
+
+            if (storedData.length === 0) {
+                alert("No data available to generate the report.");
+                return;
+            }
+
+            // Show loading indicator
+            document.getElementById('loadingIndicator').style.display = 'flex';
+
+            setTimeout(() => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Title
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(26);
+                const pageWidth = doc.internal.pageSize.getWidth();
+                doc.text("ECC Library Borrowers Report", pageWidth / 2, 20, { align: "center" });
+
+                // Calculate statistics
+                const totalBooks = storedData.length;
+                const returnedBooks = storedData.filter(b => b.returnDate).length;
+                const notReturnedBooks = totalBooks - returnedBooks;
+
+                // Summary Statistics
+                doc.setFontSize(14);
+                doc.text("Summary Statistics", 15, 40);
+
+                // Colored statistics
+                doc.setFontSize(12);
+                doc.setTextColor(65, 105, 225); // Blue
+                doc.text(`Total Books Borrowed: ${totalBooks}`, 15, 50);
+                doc.setTextColor(50, 205, 50); // Green
+                doc.text(`Books Returned: ${returnedBooks}`, 15, 60);
+                doc.setTextColor(220, 20, 60); // Red
+                doc.text(`Books Not Returned: ${notReturnedBooks}`, 15, 70);
+                doc.setTextColor(0, 0, 0); // Reset
+
+                // Create canvas for combined chart
+                const combinedCanvas = document.createElement("canvas");
+                combinedCanvas.width = 600;
+                combinedCanvas.height = 400;
+                combinedCanvas.style.display = "none";
+                document.body.appendChild(combinedCanvas);
+
+                // Generate combined chart data
+                const combinedChartData = generateCombinedChartData(storedData);
+
+                // Combined Bar Chart
+                new Chart(combinedCanvas.getContext("2d"), {
+                    type: "bar",
+                    data: combinedChartData,
+                    options: {
+                        responsive: false,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true },
+                            title: {
+                                display: true,
+                                text: 'Borrowers by Section (Returned, Not Returned, Total)',
+                                font: { size: 16, weight: 'bold' }
                             },
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    ticks: {
-                                        precision: 0,
-                                        stepSize: 1
-                                    }
-                                },
-                                x: {
-                                    ticks: {
-                                        font: { weight: 'bold' }
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return `${context.dataset.label}: ${context.raw}`;
                                     }
                                 }
                             }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0,
+                                    stepSize: 1
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    font: { weight: 'bold' }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                setTimeout(() => {
+                    // Add combined chart to PDF
+                    const combinedImgData = combinedCanvas.toDataURL("image/png");
+                    doc.addImage(combinedImgData, "PNG", 15, 80, 180, 120);
+
+                    // Detailed data table
+                    doc.addPage();
+                    doc.setFontSize(16);
+                    doc.text("Detailed Borrowing Records", 15, 20);
+                    doc.setFontSize(10);
+
+                    let yPosition = 30;
+                    storedData.forEach((item, index) => {
+                        const status = item.returnDate ?
+                            `Returned (${new Date(item.returnDate).toLocaleDateString()})` :
+                            "Not Returned";
+
+                        doc.setTextColor(0, 0, 0);
+                        doc.text(`${index + 1}`, 15, yPosition);
+                        doc.text(item.name, 25, yPosition);
+                        doc.text(item.section, 70, yPosition);
+                        doc.text(item.bookTitle, 100, yPosition);
+
+                        // Color status text
+                        if (item.returnDate) {
+                            doc.setTextColor(50, 205, 50);
+                        } else {
+                            doc.setTextColor(220, 20, 60);
+                        }
+                        doc.text(status, 150, yPosition);
+
+                        yPosition += 10;
+                        if (yPosition > 280) {
+                            doc.addPage();
+                            yPosition = 20;
                         }
                     });
 
-                    setTimeout(() => {
-                        // Add combined chart to PDF
-                        const combinedImgData = combinedCanvas.toDataURL("image/png");
-                        doc.addImage(combinedImgData, "PNG", 15, 80, 180, 120);
+                    doc.save("ECC_Borrowers_Report.pdf");
+                    document.body.removeChild(combinedCanvas);
+                    document.getElementById('loadingIndicator').style.display = 'none';
+                }, 500);
+            }, 100);
+        });
 
-                        // Detailed data table
-                        doc.addPage();
-                        doc.setFontSize(16);
-                        doc.text("Detailed Borrowing Records", 15, 20);
-                        doc.setFontSize(10);
+        let deleteMode = false;
 
-                        let yPosition = 30;
-                        storedData.forEach((item, index) => {
-                            const status = item.returnDate ?
-                                `Returned (${new Date(item.returnDate).toLocaleDateString()})` :
-                                "Not Returned";
+        // Delete functionality
+        document.getElementById('deleteBtn').addEventListener('click', function () {
+            deleteMode = true;
+            document.querySelector('.delete-controls').style.display = 'flex';
+            document.getElementById('borrowersTable').classList.add('show-delete-mode');
+            this.style.display = 'none';
+        });
 
-                            doc.setTextColor(0, 0, 0);
-                            doc.text(`${index + 1}`, 15, yPosition);
-                            doc.text(item.name, 25, yPosition);
-                            doc.text(item.section, 70, yPosition);
-                            doc.text(item.bookTitle, 100, yPosition);
+        document.getElementById('cancelDeleteBtn').addEventListener('click', function () {
+            exitDeleteMode();
+        });
 
-                            // Color status text
-                            if (item.returnDate) {
-                                doc.setTextColor(50, 205, 50);
-                            } else {
-                                doc.setTextColor(220, 20, 60);
-                            }
-                            doc.text(status, 150, yPosition);
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+            const checkboxes = document.querySelectorAll('.delete-checkbox:checked');
 
-                            yPosition += 10;
-                            if (yPosition > 280) {
-                                doc.addPage();
-                                yPosition = 20;
-                            }
-                        });
+            if (checkboxes.length === 0) {
+                alert('Please select at least one record to delete.');
+                return;
+            }
 
-                        doc.save("ECC_Borrowers_Report.pdf");
-                        document.body.removeChild(combinedCanvas);
-                        document.getElementById('loadingIndicator').style.display = 'none';
-                    }, 500);
-                }, 100);
+            const password = prompt('Enter password to confirm deletion:');
+            if (password !== "EccAdmin1963!") {
+                alert('Incorrect password. Deletion cancelled.');
+                return;
+            }
+
+            const confirmDelete = confirm(`Are you sure you want to delete ${checkboxes.length} selected record(s)?`);
+            if (!confirmDelete) return;
+
+            // Get indexes of items to delete (sorted descending to avoid index issues)
+            const indexesToDelete = Array.from(checkboxes)
+                .map(cb => parseInt(cb.dataset.index))
+                .sort((a, b) => b - a);
+
+            // Remove selected items
+            const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
+            indexesToDelete.forEach(index => {
+                storedData.splice(index, 1);
             });
 
-            let deleteMode = false;
+            // Save changes
+            localStorage.setItem("borrowersData", JSON.stringify(storedData));
 
+            exitDeleteMode();
+            populateTable(storedData);
+            alert(`${checkboxes.length} record(s) deleted successfully.`);
+        });
 
-            // Delete functionality
-            document.getElementById('deleteBtn').addEventListener('click', function () {
-                deleteMode = true;
-                document.querySelector('.delete-controls').style.display = 'flex';
-                document.getElementById('borrowersTable').classList.add('show-delete-mode');
-                this.style.display = 'none';
+        function exitDeleteMode() {
+            deleteMode = false;
+            document.getElementById('deleteBtn').style.display = 'block';
+            document.querySelector('.delete-controls').style.display = 'none';
+            document.getElementById('borrowersTable').classList.remove('show-delete-mode');
+
+            // Uncheck all checkboxes
+            document.querySelectorAll('.delete-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
             });
+        }
 
-            document.getElementById('cancelDeleteBtn').addEventListener('click', function () {
+        // Click outside to cancel delete mode
+        document.addEventListener('click', function (e) {
+            if (!deleteMode) return;
+
+            // Elements that should keep delete mode active when clicked
+            const keepActiveElements = [
+                '#borrowersTable',
+                '.delete-controls',
+                '#deleteBtn',
+                '.delete-checkbox',
+                'th.select-header',
+                'td.select-cell'
+            ];
+
+            // Check if click is inside any relevant element
+            const shouldKeepActive = keepActiveElements.some(selector =>
+                e.target.closest(selector)
+            );
+
+            // Only exit if clicking outside all relevant elements
+            if (!shouldKeepActive) {
                 exitDeleteMode();
+            }
+        });
+        
+        let currentPage = 1;
+        const rowsPerPage = 5; // Adjust as needed
+
+        // Modified populateTable function with pagination
+        function populateTable(data) {
+            tableBody.innerHTML = '';
+
+            // Calculate pagination
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = Math.min(startIndex + rowsPerPage, data.length);
+            const paginatedData = data.slice(startIndex, endIndex);
+
+            // Update page info
+            const totalPages = Math.ceil(data.length / rowsPerPage);
+            document.getElementById("pageInfo").textContent = `Page ${currentPage} of ${totalPages}`;
+
+            // Disable/enable pagination buttons
+            document.getElementById("prevPage").disabled = currentPage === 1;
+            document.getElementById("nextPage").disabled = currentPage === totalPages || totalPages === 0;
+
+            // Populate table with paginated data
+            paginatedData.forEach((rowData, index) => {
+                const rowNumber = data.length - (startIndex + index);
+                const row = document.createElement("tr");
+                row.innerHTML = `
+            <td class="select-cell"><input type="checkbox" class="delete-checkbox" data-index="${startIndex + index}"></td>
+            <td>${rowNumber}</td>
+            <td>${rowData.name}</td>
+            <td>${rowData.section}</td>
+            <td>${rowData.bookTitle}</td>
+            <td>${rowData.bookNo}</td>
+            <td>${formatDate(rowData.dateBorrowed)}</td>
+            
+                        <td class="return-date-cell">${rowData.returnDate ? formatDate(rowData.returnDate) : ''}</td>
+            <td>
+                ${rowData.returnDate ?
+                    '<button class="returned">Returned</button>' :
+                    '<button onclick="markAsReturned(this)">Return</button>'}
+            </td>
+        `;
+                tableBody.appendChild(row);
             });
+        }
 
-            document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
-                const checkboxes = document.querySelectorAll('.delete-checkbox:checked');
-
-                if (checkboxes.length === 0) {
-                    alert('Please select at least one record to delete.');
-                    return;
-                }
-
-                const password = prompt('Enter password to confirm deletion:');
-                if (password !== "Admin12345") {
-                    alert('Incorrect password. Deletion cancelled.');
-                    return;
-                }
-
-                const confirmDelete = confirm(`Are you sure you want to delete ${checkboxes.length} selected record(s)?`);
-                if (!confirmDelete) return;
-
-                // Get indexes of items to delete (sorted descending to avoid index issues)
-                const indexesToDelete = Array.from(checkboxes)
-                    .map(cb => parseInt(cb.dataset.index))
-                    .sort((a, b) => b - a);
-
-                // Remove selected items
+        // Pagination event listeners
+        document.getElementById('prevPage').addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
                 const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
-                indexesToDelete.forEach(index => {
-                    storedData.splice(index, 1);
-                });
-
-                // Save changes
-                localStorage.setItem("borrowersData", JSON.stringify(storedData));
-
-                exitDeleteMode();
                 populateTable(storedData);
-                alert(`${checkboxes.length} record(s) deleted successfully.`);
-            });
-
-            function exitDeleteMode() {
-                deleteMode = false;
-                document.getElementById('deleteBtn').style.display = 'block';
-                document.querySelector('.delete-controls').style.display = 'none';
-                document.getElementById('borrowersTable').classList.remove('show-delete-mode');
-
-                // Uncheck all checkboxes
-                document.querySelectorAll('.delete-checkbox').forEach(checkbox => {
-                    checkbox.checked = false;
-                });
             }
+        });
 
-            // Click outside to cancel delete mode
-            document.addEventListener('click', function (e) {
-                if (!deleteMode) return;
-
-                // Elements that should keep delete mode active when clicked
-                const keepActiveElements = [
-                    '#borrowersTable',
-                    '.delete-controls',
-                    '#deleteBtn',
-                    '.delete-checkbox',
-                    'th.select-header',
-                    'td.select-cell'
-                ];
-
-                // Check if click is inside any relevant element
-                const shouldKeepActive = keepActiveElements.some(selector =>
-                    e.target.closest(selector)
-                );
-
-                // Only exit if clicking outside all relevant elements
-                if (!shouldKeepActive) {
-                    exitDeleteMode();
-                }
-            });
-            let currentPage = 1;
-            const rowsPerPage = 20; // Adjust as needed
-
-            // Modified populateTable function with pagination
-            function populateTable(data) {
-                tableBody.innerHTML = '';
-
-                // Calculate pagination
-                const startIndex = (currentPage - 1) * rowsPerPage;
-                const endIndex = Math.min(startIndex + rowsPerPage, data.length);
-                const paginatedData = data.slice(startIndex, endIndex);
-
-                // Update page info
-                const totalPages = Math.ceil(data.length / rowsPerPage);
-                document.getElementById("pageInfo").textContent = `Page ${currentPage} of ${totalPages}`;
-
-                // Disable/enable pagination buttons
-                document.getElementById("prevPage").disabled = currentPage === 1;
-                document.getElementById("nextPage").disabled = currentPage === totalPages || totalPages === 0;
-
-                // Populate table with paginated data
-                paginatedData.forEach((rowData, index) => {
-                    const rowNumber = data.length - (startIndex + index);
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
-                <td class="select-cell"><input type="checkbox" class="delete-checkbox" data-index="${startIndex + index}"></td>
-                <td>${rowNumber}</td>
-                <td>${rowData.name}</td>
-                <td>${rowData.section}</td>
-                <td>${rowData.bookTitle}</td>
-                <td>${rowData.accountNo}</td>
-                <td>${formatDate(rowData.dateBorrowed)}</td>
-                <td>${rowData.returnDate ? formatDate(rowData.returnDate) : ''}</td>
-                <td>
-                    ${rowData.returnDate ?
-                            '<button class="returned">Returned</button>' :
-                            '<button onclick="markAsReturned(this)">Return</button>'}
-                </td>
-            `;
-                    tableBody.appendChild(row);
-                });
+        document.getElementById('nextPage').addEventListener('click', function() {
+            const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
+            const totalPages = Math.ceil(storedData.length / rowsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                populateTable(storedData);
             }
+        });
 
-            // Pagination event handlers
-            document.getElementById("prevPage").addEventListener("click", () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
-                    populateTable(storedData);
+        // Clear table functionality
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            const passwordInput = prompt("Enter admin password to clear all data:");
+            
+            if (passwordInput === password) {
+                if (confirm("Are you sure you want to clear ALL borrower data? This cannot be undone.")) {
+                    localStorage.removeItem("borrowersData");
+                    tableBody.innerHTML = '';
+                    currentPage = 1;
+                    document.getElementById("pageInfo").textContent = "Page 1 of 1";
+                    alert("All borrower data has been cleared.");
                 }
-            });
+            } else if (passwordInput !== null) {
+                alert("Incorrect password");
+            }
+        });
 
-            document.getElementById("nextPage").addEventListener("click", () => {
-                const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
-                const totalPages = Math.ceil(storedData.length / rowsPerPage);
-
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    populateTable(storedData);
-                }
-            });
-        </script>
-    </section> <!-- End of Borrower's Form -->
-    
+        // Initialize the table
+        window.onload = function() {
+            const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
+            populateTable(storedData);
+        };
+    </script>
 </body>
-
 </html>
