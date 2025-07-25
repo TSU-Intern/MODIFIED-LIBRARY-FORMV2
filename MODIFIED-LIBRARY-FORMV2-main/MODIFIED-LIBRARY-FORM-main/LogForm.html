@@ -628,8 +628,8 @@
                         <td>${entry.name}</td>
                         <td>${entry.section}</td>
                         <td>${formatDate(entry.date)}</td>
-                        <td>${entry.timeIn || 'N/A'}</td>
-                        <td>${entry.timeOut || 'N/A'}</td>
+                        <td>${formatTime(entry.timeIn)}</td>
+                        <td>${formatTime(entry.timeOut)}</td>
                         <td>
                             <button 
                                 class="time-out-btn ${entry.timeOut ? 'timed-out' : ''}" 
@@ -656,6 +656,18 @@
             return `${day}, ${month}/${date}/${year}`;
         }
 
+        function formatTime(timeString) {
+            if (!timeString) return 'N/A';
+            const [hours, minutes] = timeString.split(':');
+            const dateObj = new Date();
+            dateObj.setHours(hours, minutes);
+            return dateObj.toLocaleTimeString([], {
+                hour: 'numeric', // Removes leading 0
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+
 
         function addEntry() {
             const name = document.getElementById('name').value.trim();
@@ -676,13 +688,17 @@
             }
 
             const now = new Date();
-            const currentDate = now.toISOString(); // store full ISO string including time
-            const currentTime = now.toLocaleTimeString();
+            const currentDate = now.toISOString().split('T')[0]; // Get just the date part in YYYY-MM-DD format
+            const currentTime = now.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false // Use 24-hour format for consistency
+            }).replace(/^24:/, '00:'); // Handle midnight case
 
             const isDuplicate = entries.some(entry =>
                 entry.name === name &&
                 entry.section === section &&
-                currentDate === entry.date &&
+                currentDate === entry.date.split('T')[0] && // Compare just the date part
                 new Date().getTime() - new Date(`${entry.date}T${entry.timeIn}`).getTime() < 600000
             );
 
@@ -692,7 +708,7 @@
             }
 
             entries.unshift({
-                date: currentDate,
+                date: now.toISOString(), // Store full ISO string including time
                 name,
                 section,
                 timeIn: currentTime,
@@ -706,7 +722,12 @@
         }
 
         function timeOut(index) {
-            entries[index].timeOut = new Date().toLocaleTimeString();
+            const now = new Date();
+            entries[index].timeOut = now.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false // Use 24-hour format for consistency
+            }).replace(/^24:/, '00:'); // Handle midnight case
             localStorage.setItem('libraryEntries', JSON.stringify(entries));
             renderTable();
         }
@@ -997,7 +1018,8 @@
             document.getElementById('entriesTable').classList.add('show-delete-mode');
             document.querySelector('.delete-controls').style.display = 'flex';
             document.getElementById('deleteBtn').style.display = 'none';
-            document.getElementById('popupOverlay').style.display = 'block'; // Show overlay
+            // Remove this line to prevent dimming:
+            // document.getElementById('popupOverlay').style.display = 'block';
         }
 
         function exitDeleteMode() {
@@ -1005,7 +1027,8 @@
             document.getElementById('entriesTable').classList.remove('show-delete-mode');
             document.querySelector('.delete-controls').style.display = 'none';
             document.getElementById('deleteBtn').style.display = 'block';
-            document.getElementById('popupOverlay').style.display = 'none'; // Hide overlay
+            // Remove this line since we're not using the overlay here:
+            // document.getElementById('popupOverlay').style.display = 'none';
             
             // Uncheck all checkboxes
             document.querySelectorAll('.delete-checkbox').forEach(checkbox => {
@@ -1039,16 +1062,13 @@
         document.addEventListener('click', function(e) {
             if (!deleteMode) return;
 
-            // Check if click is on the overlay (background)
-            const isClickOnOverlay = e.target.id === 'popupOverlay';
-
             // Check if click is inside the table or delete controls
             const isClickInsideTable = e.target.closest('#entriesTable');
             const isClickInDeleteControls = e.target.closest('.delete-controls');
             const isClickOnDeleteBtn = e.target.closest('#deleteBtn');
 
-            // Exit delete mode if clicking on overlay or outside relevant elements
-            if (isClickOnOverlay || (!isClickInsideTable && !isClickInDeleteControls && !isClickOnDeleteBtn)) {
+            // Exit delete mode if clicking outside relevant elements
+            if (!isClickInsideTable && !isClickInDeleteControls && !isClickOnDeleteBtn) {
                 exitDeleteMode();
             }
         });

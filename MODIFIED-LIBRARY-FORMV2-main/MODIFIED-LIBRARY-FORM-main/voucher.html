@@ -359,7 +359,7 @@
             transform: translate(-50%, -50%);
             background: #ffffff;
             padding: 24px;
-            z-index: 1000;
+            z-index: 1002;
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.19);
             color: #333;
             text-align: center;
@@ -439,16 +439,19 @@
         /* Add to your style section */
         .qr-code-display {
             position: fixed;
-            top: 50%;
+            top: 45%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 25px;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
             z-index: 1000;
             text-align: center;
+            min-width: 200px;
+         
         }
+        
 
         .qr-code-display img {
             margin: 10px 0;
@@ -460,12 +463,43 @@
             padding: 5px 10px;
         }
 
+        
         .voucher-code {
-            cursor: pointer;
+            display: block;
             position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding-right: 40px;
+            text-align: center;
+            height: 100%;
+        }
+        
+        .voucher-text {
+            cursor: pointer;
+             
+        }
+
+        .voucher-text:hover {
+            cursor: pointer;
+            text-decoration: underline;
+        }
+       
+
+
+        /* Remove any conflicting styles */
+        .voucher-code-wrapper {
+            display: contents; /* This prevents layout shifts */
+        }
+
+        .voucher-code span {
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .voucher-code .qr-icon-container {
+            margin-left: 5px;
+        }
+
+        .voucher-code:hover .qr-icon-container {
+            display: block;
         }
 
         .voucher-code:hover .qr-btn {
@@ -483,6 +517,46 @@
         .qr-btn:hover {
             background: darkblue;
             transform: scale(1.05);
+        }
+        .qr-code-display {
+            color: black;
+        }
+        .close-qr:hover {
+            color: red;
+        }
+
+       /* QR Icon Styles */
+        .qr-icon-container {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 3px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            display: inline-block;
+            vertical-align: middle;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .qr-icon {
+            width: 18px;
+            height: 18px;
+            display: block;
+            filter: grayscale(100%);
+            transition: all 0.2s ease;
+        }
+
+        /* Hover effects */
+        .qr-icon-container:hover {
+            background: #dddddd; /* Slightly darker background on hover */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Subtle shadow */
+        }
+
+        .qr-icon-container:hover .qr-icon {
+            filter: grayscale(0%) brightness(0.9); /* Darker and full color */
         }
     </style>
 </head>
@@ -652,28 +726,60 @@
 
             if (storedData.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No voucher data available</td></tr>';
+                updatePaginationControls(0); // Update pagination for empty table
                 return;
             }
 
             storedData.forEach((data, index) => {
                 const rowNumber = storedData.length - index;
-                const row = `<tr>
-                <td class="select-cell"><input type="checkbox" class="delete-checkbox" data-index="${index}"></td>
-                <td>${rowNumber}</td>
-                <td>${data.name}</td>
-                <td>${data.section}</td>
-                <td>${data.dateTime}</td>
-                <td class="voucher-code" data-code="${data.voucherCode}">
-                    <span>${data.voucherCode}</span>
-                    <button class="qr-btn" style="display:none; margin-left:5px; font-size:12px; padding:2px 5px;">QR</button>
-                </td>
-            </tr>`;
+                
+                const dateObj = new Date(data.dateTime);
+                // Format the time without leading zeros for hours
+                const formattedDateTime = dateObj.toLocaleString([], {
+                    year: 'numeric',
+                    month: 'numeric',
+                    day: 'numeric',
+                    hour: 'numeric',  // Changed from '2-digit' to 'numeric' to remove leading zero
+                    minute: '2-digit',
+                    hour12: true
+                });
+
+            const row = `<tr data-ssid="${data.ssid || 'MyWiFiNetwork'}" data-security="${data.security || 'WPA'}">
+                    <td class="select-cell"><input type="checkbox" class="delete-checkbox" data-index="${index}"></td>
+                    <td>${rowNumber}</td>
+                    <td>${data.name}</td>
+                    <td>${data.section}</td>
+                    <td>${formattedDateTime}</td>
+                    <td>
+                        <span class="voucher-code" data-code="${data.voucherCode}" 
+                            data-ssid="${data.ssid || 'MyWiFiNetwork'}" 
+                            data-security="${data.security || 'WPA'}">
+                            <span class="voucher-text">${data.voucherCode}</span>
+                            <span class="qr-icon-container">
+                                ${generateMiniQR(data.voucherCode, data.ssid || 'MyWiFiNetwork', data.security || 'WPA')}
+                            </span>
+                        </span>
+                    </td>
+                </tr>`;
                 tableBody.insertAdjacentHTML('beforeend', row);
             });
 
-            // Always show first page when new voucher is added
+            // Reset to first page and update pagination
             currentPage = 1;
-            updateTableForCurrentPage(); // Call to update pagination
+            updateTableForCurrentPage();
+        }
+
+        function generateMiniQR(voucherCode, ssid, security) {
+            const wifiConfig = `WIFI:T:${security};S:${ssid};P:${voucherCode};;`;
+            const qr = qrcode(0, 'L');
+            qr.addData(wifiConfig);
+            qr.make();
+            
+            // Create a smaller version of the QR code (4x4 modules)
+            const qrImgTag = qr.createImgTag(2, 0);
+            const imgSrc = qrImgTag.match(/src="([^"]*)"/)[1];
+            
+            return `<img src="${imgSrc}" class="qr-icon" alt="QR Code">`;
         }
 
         let deleteMode = false;
@@ -1136,27 +1242,20 @@
             const totalRows = rows.length;
             const totalPages = Math.ceil(totalRows / rowsPerPage);
 
-            // Hide all rows first
+            // Hide all rows
             rows.forEach(row => row.style.display = "none");
 
-            // Calculate start and end index for current page
+            // Show only current page rows
             const startIndex = (currentPage - 1) * rowsPerPage;
             const endIndex = Math.min(startIndex + rowsPerPage, totalRows);
-
-            // Show only rows for current page
+            
             for (let i = startIndex; i < endIndex; i++) {
-                if (rows[i]) { // Safety check in case row doesn't exist
-                    rows[i].style.display = "";
-                }
+                rows[i].style.display = "";
             }
 
-            // Update page info text
+            // Update pagination controls
             document.getElementById("pageInfo").textContent = `Page ${currentPage} of ${totalPages}`;
-
-            // Disable "Previous" button if on first page
             document.getElementById("prevPage").disabled = currentPage === 1;
-
-            // Disable "Next" button if on last page
             document.getElementById("nextPage").disabled = currentPage === totalPages || totalPages === 0;
         }
 
@@ -1233,22 +1332,28 @@
         });
 
         // Add this to your DOMContentLoaded event listener
+                
         document.addEventListener('DOMContentLoaded', function() {
             populateTable();
             
             // QR code click handler
             document.addEventListener('click', function(e) {
-                // Click on voucher code text
-                if (e.target.classList.contains('voucher-code') || e.target.parentElement.classList.contains('voucher-code')) {
-                    const codeElement = e.target.classList.contains('voucher-code') ? e.target : e.target.parentElement;
-                    const voucherCode = codeElement.getAttribute('data-code');
-                    showQRCode(voucherCode);
+                // Click on QR icon or container
+                if (e.target.classList.contains('qr-icon') || e.target.classList.contains('qr-icon-container')) {
+                    const parent = e.target.closest('tr');
+                    const voucherCode = parent.querySelector('.voucher-code').getAttribute('data-code');
+                    const ssid = parent.getAttribute('data-ssid') || 'MyWiFiNetwork';
+                    const security = parent.getAttribute('data-security') || 'WPA';
+                    showQRCode(voucherCode, ssid, security);
                 }
                 
-                // Click on QR button
-                if (e.target.classList.contains('qr-btn')) {
-                    const voucherCode = e.target.parentElement.getAttribute('data-code');
-                    showQRCode(voucherCode);
+                // Click on voucher text (updated to check for voucher-text class)
+                if (e.target.classList.contains('voucher-text')) {
+                    const parentRow = e.target.closest('tr');
+                    const voucherCode = parentRow.querySelector('.voucher-code').getAttribute('data-code');
+                    const ssid = parentRow.getAttribute('data-ssid') || 'MyWiFiNetwork';
+                    const security = parentRow.getAttribute('data-security') || 'WPA';
+                    showQRCode(voucherCode, ssid, security);
                 }
                 
                 // Close QR code display
@@ -1258,30 +1363,82 @@
             });
         });
 
-        function showQRCode(voucherCode) {
+       function showQRCode(voucherCode, ssid, security) {
             // Remove any existing QR code displays
             document.querySelector('.qr-code-display')?.remove();
             
-            // Create QR code
-            const qr = qrcode(0, 'L');
-            qr.addData(voucherCode);
-            qr.make();
-            const qrImg = qr.createImgTag(5);
+            // Create WiFi connection string
+            const wifiConfig = `WIFI:T:${security};S:${ssid};P:${voucherCode};;`;
             
-            // Create display element
+            // Create QR code with smaller module size (changed from 5 to 4)
+            const qr = qrcode(0, 'L');
+            qr.addData(wifiConfig);
+            qr.make();
+            
+            // Create display element with logo
             const qrDisplay = document.createElement('div');
             qrDisplay.className = 'qr-code-display';
             qrDisplay.innerHTML = `
-                <h3>Voucher Code: ${voucherCode}</h3>
-                ${qrImg}
-                <button class="close-qr">Close</button>
+                <div class="qr-header">
+                    <h3 style="margin: 0; padding: 10px 0; padding-bottom: 0px; font-weight: 300; text-shadow: 0 1px 1px rgba(0,0,0,0.1); font-size: 18px">ECC Voucher Code</h3>
+                    <span class="close-qr" style="position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 20px; transition: color 0.2s ease;">&times;</span>
+                </div>
+                <div class="qr-container" style="position: relative; margin: 10px auto; width: 160px;">
+                    <img id="qr-image" style="width: 100%; border-radius: 15px; border: 1px solid black; margin-top: 0px; display: block;">
+                    
+                    <!-- Logo overlay centered on QR code -->
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                                width: 40px; height: 40px; 
+                                display: flex; align-items: center; justify-content: center;">
+                        <img src="Ecc-logo.png" style="max-width: 70%; max-height: 70%; border:0px; " alt="ECC Logo">
+                    </div>
+                    
+                    <div class="voucher-embed" style="position: absolute; bottom: 2px; left: 0; right: 0; text-align: center; 
+                        font-size: 12px; font-weight: bold; color: #333; background: rgba(255,255,255,0.8); 
+                        padding: 2px 0; margin: 0 15px; border-radius: 3px;">
+                        ${voucherCode}
+                    </div>
+                </div>
+                <div class="voucher-timer" style="margin: 10px 0; margin-bottom: 0px; color: red; font-weight: bold; font-size: 16px;">
+                    Closing in <span id="countdown">15</span> seconds
+                </div>
             `;
             
+            // Add QR code image
+            const qrImgTag = qr.createImgTag(4);
+            const qrImg = qrDisplay.querySelector('#qr-image');
+            qrImg.src = qrImgTag.match(/src="([^"]*)"/)[1];
+            
+            // Add overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'popup-overlay active';
+            document.body.appendChild(overlay);
             document.body.appendChild(qrDisplay);
+
+            // Close button hover effect
+            const closeBtn = qrDisplay.querySelector('.close-qr');
+            closeBtn.addEventListener('mouseenter', () => closeBtn.style.color = 'red');
+            closeBtn.addEventListener('mouseleave', () => closeBtn.style.color = '');
+
+            // Close functionality
+            const closeDisplay = () => {
+                document.body.removeChild(qrDisplay);
+                document.body.removeChild(overlay);
+                clearInterval(countdownInterval);
+            };
+
+            closeBtn.addEventListener('click', closeDisplay);
+            overlay.addEventListener('click', closeDisplay);
+            
+            // Countdown timer
+            let seconds = 15;
+            const countdownElement = qrDisplay.querySelector('#countdown');
+            const countdownInterval = setInterval(() => {
+                seconds--;
+                countdownElement.textContent = seconds;
+                if (seconds <= 0) closeDisplay();
+            }, 1000);
         }
-        
-
-
     </script>
 </body>
 

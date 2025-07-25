@@ -181,10 +181,14 @@
         }
 
         .returned {
-            background-color: red !important;
+            background-color: #4CAF50 !important; /* Green for returned */
             color: white;
             pointer-events: none;
             cursor: not-allowed;
+        }
+
+        .returned-row {
+            background-color: #e8f5e9 !important; /* Light green background for returned rows */
         }
 
         .password-popup {
@@ -453,7 +457,19 @@
         .deadline-cell {
             font-weight: bold;
         }
-        
+
+        .pending-btn {
+            background-color: #ffcc00 !important; /* Yellow for pending */
+            color: black;
+        }
+        .pending-btn:hover {
+            background-color: #e6b800 !important; /* Darker yellow on hover */
+        }
+
+        .pending {
+            background-color: #fff9e6 !important; /* Light yellow background for pending rows */
+        }
+                
         /* Calendar icon */
         .datepicker-toggle {
             display: inline-block;
@@ -473,6 +489,8 @@
             background-position: center;
             cursor: pointer;
         }
+
+
     </style>
 </head>
 
@@ -615,10 +633,207 @@
     </div>
 
     <script>
+        // Add these at the top of your script section (before any functions)
+        let rowsPerPage = 10; // Number of rows per page
+        let currentPage = 1;   // Current page number
         const password = "EccAdmin1963!"; // Set the password for both buttons
         const tableBody = document.getElementById("borrowersTableBody");
         let borrowersChart = null;
+        let currentReturnButton = null;
 
+        // Initialize the page
+        window.onload = function() {
+            const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
+            currentPage = 1; // Start on page 1
+            populateTable(storedData);
+            
+            // Set default deadline to 7 days from today
+            const today = new Date();
+            const defaultDeadline = new Date();
+            defaultDeadline.setDate(today.getDate() + 7); // 7 days from today
+            
+            // Format as YYYY-MM-DD for date input
+            const formattedDate = defaultDeadline.toISOString().split('T')[0];
+            document.getElementById('returnDeadline').value = formattedDate;
+            document.getElementById('returnDeadline').min = today.toISOString().split('T')[0];
+        };
+
+        // Name auto-capitalization
+        document.getElementById("name").addEventListener("input", function () {
+            this.value = this.value
+                .toLowerCase()
+                .split(" ")
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(" ");
+        });
+
+        // Book title auto-capitalization
+        document.getElementById("bookTitle").addEventListener("input", function () {
+            this.value = this.value
+                .toLowerCase()
+                .split(" ")
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(" ");
+        });
+
+        // Main function to populate the table with pagination
+        function populateTable(data) {
+            tableBody.innerHTML = '';
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // Today at midnight
+
+            // Calculate pagination
+            const totalPages = Math.max(1, Math.ceil(data.length / rowsPerPage));
+            currentPage = Math.min(currentPage, totalPages); // Ensure we don't go past last page
+            
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = Math.min(startIndex + rowsPerPage, data.length);
+            const paginatedData = data.slice(startIndex, endIndex);
+
+            // Update page info
+            document.getElementById("pageInfo").textContent = `Page ${currentPage} of ${totalPages}`;
+
+            // Disable/enable pagination buttons
+            document.getElementById("prevPage").disabled = currentPage === 1;
+            document.getElementById("nextPage").disabled = currentPage === totalPages || totalPages === 0;
+
+            // Populate table rows
+            paginatedData.forEach((rowData, index) => {
+                const globalIndex = startIndex + index;
+                const rowNumber = data.length - globalIndex;
+                const deadlineDate = new Date(rowData.returnDeadline);
+                const deadlineDay = new Date(deadlineDate.getFullYear(), deadlineDate.getMonth(), deadlineDate.getDate());
+                
+                let status = '';
+                let buttonClass = '';
+                let buttonText = 'Return';
+                
+                if (rowData.returnDate) {
+                    status = 'returned';
+                    buttonClass = 'returned';
+                    buttonText = 'Returned';
+                } else {
+                    if (deadlineDay < today) {
+                        status = 'overdue';
+                        buttonClass = 'overdue-btn';
+                        buttonText = 'Overdue';
+                    } else if (deadlineDay.getTime() === today.getTime()) {
+                        status = 'pending';
+                        buttonClass = 'pending-btn';
+                        buttonText = 'Pending';
+                    } else {
+                        status = 'active';
+                        buttonClass = '';
+                        buttonText = 'Return';
+                    }
+                }
+                
+                const row = document.createElement("tr");
+                if (status === 'overdue') row.classList.add("overdue");
+                if (status === 'pending') row.classList.add("pending");
+                if (status === 'returned') row.classList.add("returned-row"); // Add this line
+
+                row.innerHTML = `
+                    <td class="select-cell"><input type="checkbox" class="delete-checkbox" data-index="${globalIndex}"></td>
+                    <td>${rowNumber}</td>
+                    <td>${rowData.name}</td>
+                    <td>${rowData.section}</td>
+                    <td>${rowData.bookTitle}</td>
+                    <td>${rowData.bookNo}</td>
+                    <td>${formatDate(rowData.dateBorrowed)}</td>
+                    <td class="deadline-cell">${formatDate(rowData.returnDeadline)}</td>
+                    <td class="return-date-cell">${rowData.returnDate ? formatDate(rowData.returnDate) : ''}</td>
+                    <td>
+                        <button class="${buttonClass}" onclick="markAsReturned(this)" ${status === 'returned' ? 'disabled' : ''}>
+                            ${buttonText}
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Add borrower function
+        function addBorrower() {
+            const name = document.getElementById("name").value.trim();
+            const section = document.getElementById("section").value;
+            const bookTitle = document.getElementById("bookTitle").value.trim();
+            const bookNo = document.getElementById("bookNo").value.trim();
+            const returnDeadline = document.getElementById("returnDeadline").value;
+            
+            // Validate full name (must contain at least one space)
+            if (!name.includes(" ")) {
+                alert("Please enter your full name (First and Last name).");
+                return;
+            }
+            if (name.split(" ").length < 2) {
+                alert("Please enter your full name (First and Last name).");
+                return;
+            }
+
+            // Validate other fields
+            if (!section || !bookTitle || !bookNo || !returnDeadline) {
+                alert("Please fill out all fields.");
+                return;
+            }
+
+            const dateBorrowed = new Date();
+            const newRow = {
+                name,
+                section,
+                bookTitle,
+                bookNo,
+                dateBorrowed: dateBorrowed.toISOString(),
+                returnDeadline: new Date(returnDeadline).toISOString(),
+                returnDate: ""
+            };
+
+            const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
+            storedData.unshift(newRow);
+            localStorage.setItem("borrowersData", JSON.stringify(storedData));
+
+            // Reset to page 1 when adding new data
+            currentPage = 1;
+            populateTable(storedData);
+            document.getElementById("borrowersForm").reset();
+        }
+
+        // Pagination controls
+        document.getElementById('prevPage').addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
+                populateTable(storedData);
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', function() {
+            const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
+            const totalPages = Math.ceil(storedData.length / rowsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                populateTable(storedData);
+            }
+        });
+
+
+        // Format date helper function
+        function formatDate(isoString) {
+            if (!isoString) return '';
+            const date = new Date(isoString);
+            return date.toLocaleDateString('en-PH', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Rest of your existing functions (markAsReturned, delete functionality, etc.) can remain the same
+        // Just make sure they call populateTable() after modifying data to maintain proper pagination
+
+  
         // Name auto-capitalization
         document.getElementById("name").addEventListener("input", function () {
             this.value = this.value
@@ -689,90 +904,6 @@
             }
         });
 
-        window.onload = function () {
-            const storedData = localStorage.getItem("borrowersData");
-            if (storedData) {
-                const borrowersData = JSON.parse(storedData);
-                populateTable(borrowersData);
-                if (document.getElementById("borrowersChart")) {
-                    generateChart(borrowersData);
-                }
-            }
-        };
-        
-        function addBorrower() {
-            const name = document.getElementById("name").value.trim();
-            const section = document.getElementById("section").value;
-            const bookTitle = document.getElementById("bookTitle").value.trim();
-            const bookNo = document.getElementById("bookNo").value.trim();
-
-            // Validate full name (must contain at least one space)
-            if (!name.includes(" ")) {
-                alert("Please enter your full name (First and Last name).");
-                return;
-            }
-            if (name.split(" ").length < 2) {
-                alert("Please enter your full name (First and Last name).");
-                return;
-            }
-
-            // Validate other fields
-            if (!section || !bookTitle || !bookNo) {
-                alert("Please fill out all fields.");
-                return;
-            }
-
-            const dateBorrowed = new Date();
-            const newRow = {
-                name,
-                section,
-                bookTitle,
-                bookNo,
-                dateBorrowed: dateBorrowed.toISOString(),
-                returnDate: ""
-            };
-
-            const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
-            storedData.unshift(newRow);
-            localStorage.setItem("borrowersData", JSON.stringify(storedData));
-
-            populateTable(storedData);
-
-            // Only generate chart if canvas exists
-            if (document.getElementById("borrowersChart")) {
-                generateChart(storedData);
-            }
-
-            document.getElementById("borrowersForm").reset();
-        }
-
-        function populateTable(data) {
-            tableBody.innerHTML = '';
-
-            data.forEach((rowData, index) => {
-                const rowNumber = data.length - index;
-                const row = document.createElement("tr");
-                row.innerHTML = `
-            <td class="select-cell"><input type="checkbox" class="delete-checkbox" data-index="${index}"></td>
-            <td>${rowNumber}</td>
-            <td>${rowData.name}</td>
-            <td>${rowData.section}</td>
-            <td>${rowData.bookTitle}</td>
-            <td>${rowData.bookNo}</td>
-            <td>${formatDate(rowData.dateBorrowed)}</td>
-            <td class="return-date-cell">${rowData.returnDate ? formatDate(rowData.returnDate) : ''}</td>
-            <td>
-                ${rowData.returnDate ?
-                    '<button class="returned">Returned</button>' :
-                    // In your populateTable function, update the button generation to:
-                    `<button onclick="markAsReturned(this)" ${isOverdue ? 'class="overdue-btn"' : ''}>
-                        ${isOverdue ? 'Overdue' : 'Return'}
-                    </button>`}
-            </td>
-        `;
-                tableBody.appendChild(row);
-            });
-        }
         
         function formatDate(isoString) {
             if (!isoString) return '';
@@ -787,7 +918,11 @@
         }
 
         function markAsReturned(button) {
-            const passwordInput = prompt("Enter password to mark as returned:");
+            currentReturnButton = button;
+            document.getElementById("returnPopup").classList.add("active");
+            document.getElementById("popupOverlay").style.display = "block";
+            document.getElementById("returnPassword").focus();
+        
             if (passwordInput === password) {
                 const row = button.closest('tr');
                 if (!row) {
@@ -805,18 +940,24 @@
                 const returnDateCell = cells[7]; // 8th column (0-based index 7)
                 const returnDate = new Date().toISOString();
                 returnDateCell.textContent = formatDate(returnDate);
+                
+                // Update the status button
                 button.textContent = "Returned";
-                button.classList.add("returned");
+                button.className = "returned";
                 button.onclick = null;
+
+                // Add the returned-row class to the parent row
+                row.classList.add("returned-row");
+                row.classList.remove("overdue", "pending"); // Remove any other status classes
 
                 // Update localStorage
                 const rowIndex = parseInt(row.querySelector(".delete-checkbox").dataset.index);
                 const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
-
+            
                 if (rowIndex >= 0 && rowIndex < storedData.length) {
                     storedData[rowIndex].returnDate = returnDate;
                     localStorage.setItem("borrowersData", JSON.stringify(storedData));
-
+                    populateTable(storedData);
                     // Regenerate chart if needed
                     if (document.getElementById("borrowersChart")) {
                         generateChart(storedData);
@@ -1161,30 +1302,35 @@
             exitDeleteMode();
         });
 
-        document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+        // Delete functionality
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
             const checkboxes = document.querySelectorAll('.delete-checkbox:checked');
-
+            
             if (checkboxes.length === 0) {
                 alert('Please select at least one record to delete.');
                 return;
             }
 
-            const confirmDelete = confirm(`Are you sure you want to delete ${checkboxes.length} selected record(s)?`);
-            if (!confirmDelete) return;
+            if (!confirm(`Are you sure you want to delete ${checkboxes.length} selected record(s)?`)) return;
 
-            // Get indexes of items to delete (sorted descending to avoid index issues)
+            const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
             const indexesToDelete = Array.from(checkboxes)
                 .map(cb => parseInt(cb.dataset.index))
                 .sort((a, b) => b - a);
 
-            // Remove selected items
-            const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
             indexesToDelete.forEach(index => {
                 storedData.splice(index, 1);
             });
 
-            // Save changes
             localStorage.setItem("borrowersData", JSON.stringify(storedData));
+
+            // Recalculate current page after deletion
+            const totalPages = Math.ceil(storedData.length / rowsPerPage);
+            if (currentPage > totalPages && totalPages > 0) {
+                currentPage = totalPages;
+            } else if (totalPages === 0) {
+                currentPage = 1;
+            }
 
             exitDeleteMode();
             populateTable(storedData);
@@ -1229,75 +1375,16 @@
             }
         });
         
-        let currentPage = 1;
-        const rowsPerPage = 10; // Adjust as needed
+        
 
-        // Modified populateTable function with pagination
-        function populateTable(data) {
-            tableBody.innerHTML = '';
 
-            // Calculate pagination
-            const startIndex = (currentPage - 1) * rowsPerPage;
-            const endIndex = Math.min(startIndex + rowsPerPage, data.length);
-            const paginatedData = data.slice(startIndex, endIndex);
 
-            // Update page info
+        function updatePaginationControls(data) {
             const totalPages = Math.max(1, Math.ceil(data.length / rowsPerPage));
-            currentPage = Math.min(currentPage, totalPages); // Prevent currentPage > totalPages
             document.getElementById("pageInfo").textContent = `Page ${currentPage} of ${totalPages}`;
-
-            // Disable/enable pagination buttons
-            document.getElementById("prevPage").disabled = currentPage === 1;
-            document.getElementById("nextPage").disabled = currentPage === totalPages || totalPages === 0;
-
-            // Populate table with paginated data
-            paginatedData.forEach((rowData, index) => {
-                const rowNumber = data.length - (startIndex + index);
-                const row = document.createElement("tr");
-                row.innerHTML = `
-            <td class="select-cell"><input type="checkbox" class="delete-checkbox" data-index="${startIndex + index}"></td>
-            <td>${rowNumber}</td>
-            <td>${rowData.name}</td>
-            <td>${rowData.section}</td>
-            <td>${rowData.bookTitle}</td>
-            <td>${rowData.bookNo}</td>
-            <td>${formatDate(rowData.dateBorrowed)}</td>
-            
-                        <td class="return-date-cell">${rowData.returnDate ? formatDate(rowData.returnDate) : ''}</td>
-            <td>
-                ${rowData.returnDate ?
-                    '<button class="returned">Returned</button>' :
-                    '<button onclick="markAsReturned(this)">Return</button>'}
-            </td>
-        `;
-                tableBody.appendChild(row);
-            });
+            document.getElementById("prevPage").disabled = currentPage <= 1;
+            document.getElementById("nextPage").disabled = currentPage >= totalPages || data.length === 0;
         }
-
-        // Pagination event listeners
-        document.getElementById('prevPage').addEventListener('click', function() {
-            if (currentPage > 1) {
-                currentPage--;
-                const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
-                populateTable(storedData);
-            }
-        });
-
-        document.getElementById('nextPage').addEventListener('click', function() {
-            const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
-            const totalPages = Math.ceil(storedData.length / rowsPerPage);
-            if (currentPage < totalPages) {
-                currentPage++;
-                populateTable(storedData);
-            }
-        });
-
-
-        // Initialize the table
-        window.onload = function() {
-            const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
-            populateTable(storedData);
-        };
 
         // Clear data functionality - show popup and overlay
         document.getElementById('clearBtn').addEventListener('click', function() {
@@ -1336,98 +1423,6 @@
             renderTable();
         }
 
-        // Update the addBorrower function to include deadline
-        function addBorrower() {
-            const name = document.getElementById("name").value.trim();
-            const section = document.getElementById("section").value;
-            const bookTitle = document.getElementById("bookTitle").value.trim();
-            const bookNo = document.getElementById("bookNo").value.trim();
-            const returnDeadline = document.getElementById("returnDeadline").value;
-
-            // Validate full name (must contain at least one space)
-            if (!name.includes(" ")) {
-                alert("Please enter your full name (First and Last name).");
-                return;
-            }
-            if (name.split(" ").length < 2) {
-                alert("Please enter your full name (First and Last name).");
-                return;
-            }
-
-            // Validate other fields
-            if (!section || !bookTitle || !bookNo || !returnDeadline) {
-                alert("Please fill out all fields.");
-                return;
-            }
-
-            const dateBorrowed = new Date();
-            const newRow = {
-                name,
-                section,
-                bookTitle,
-                bookNo,
-                dateBorrowed: dateBorrowed.toISOString(),
-                returnDeadline: new Date(returnDeadline).toISOString(),
-                returnDate: ""
-            };
-
-            const storedData = JSON.parse(localStorage.getItem("borrowersData")) || [];
-            storedData.unshift(newRow);
-            localStorage.setItem("borrowersData", JSON.stringify(storedData));
-
-            populateTable(storedData);
-            document.getElementById("borrowersForm").reset();
-        }
-
-        // Update the populateTable function to include deadline and status
-        function populateTable(data) {
-            tableBody.innerHTML = '';
-            const now = new Date();
-
-            data.forEach((rowData, index) => {
-                const rowNumber = data.length - index;
-                const deadlineDate = new Date(rowData.returnDeadline);
-                const isOverdue = !rowData.returnDate && deadlineDate < now;
-                const status = rowData.returnDate ? 
-                    'Returned' : 
-                    (isOverdue ? 'Overdue' : 'Pending');
-                
-                const row = document.createElement("tr");
-                if (isOverdue) {
-                    row.classList.add("overdue");
-                }
-                
-                row.innerHTML = `
-                    <td class="select-cell"><input type="checkbox" class="delete-checkbox" data-index="${index}"></td>
-                    <td>${rowNumber}</td>
-                    <td>${rowData.name}</td>
-                    <td>${rowData.section}</td>
-                    <td>${rowData.bookTitle}</td>
-                    <td>${rowData.bookNo}</td>
-                    <td>${formatDate(rowData.dateBorrowed)}</td>
-                    <td class="deadline-cell">${formatDate(rowData.returnDeadline)}</td>
-                    <td class="return-date-cell">${rowData.returnDate ? formatDate(rowData.returnDate) : ''}</td>
-                    <td>
-                        ${rowData.returnDate ?
-                            '<button class="returned">Returned</button>' :
-                            `<button onclick="markAsReturned(this)" ${isOverdue ? 'class="overdue-btn"' : ''}>
-                                ${isOverdue ? 'Overdue' : 'Return'}
-                            </button>`}
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
-        // Store the current button being processed
-        let currentReturnButton = null;
-
-        function markAsReturned(button) {
-            currentReturnButton = button;
-            document.getElementById("returnPopup").classList.add("active");
-            document.getElementById("popupOverlay").style.display = "block";
-            document.getElementById("returnPassword").focus();
-        }
 
         // Add event listeners for the return popup buttons
         document.getElementById("confirmReturnBtn").addEventListener("click", function() {
@@ -1446,8 +1441,9 @@
                 currentReturnButton.className = "returned";
                 currentReturnButton.onclick = null;
                 
-                // Remove overdue styling if present
-                row.classList.remove("overdue");
+                // Add returned-row class and remove other status classes
+                row.classList.add("returned-row");
+                row.classList.remove("overdue", "pending");
 
                 // Update localStorage
                 const rowIndex = parseInt(row.querySelector(".delete-checkbox").dataset.index);
@@ -1456,6 +1452,7 @@
                 if (rowIndex >= 0 && rowIndex < storedData.length) {
                     storedData[rowIndex].returnDate = returnDate;
                     localStorage.setItem("borrowersData", JSON.stringify(storedData));
+                    // No need to call populateTable() here since we're updating the DOM directly
                 }
             } else {
                 alert("Incorrect password. Try again.");
