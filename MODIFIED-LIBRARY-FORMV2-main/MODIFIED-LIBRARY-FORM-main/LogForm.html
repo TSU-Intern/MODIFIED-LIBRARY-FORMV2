@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Time Log Form</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.30.0/docxtemplater.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+    /* General Styles */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-image: url('bg.jpg');
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+        background-color: royalblue;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        color: white;
+        font-size: 15px;
+    }
+
+    .header-container {
+        background-color: rgba(0, 0, 0, 0.829);
+        width: 100%;
+        padding: 5px;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 10px;
+        box-sizing: border-box;
+        color: rgb(255, 255, 255);
+    }
+
+    .header-container img {
+        width: 42px;
+        height: 42px;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        transition: all 0.3s ease;
+        transform-origin: center;
+    }
+
+    .header-container a:hover img {
+        transform: scale(1.1) rotate(5deg);
+        filter: drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3));
+    }
+
+    .header-container span {
+        font-size: 30px;
+        font-weight: bold;
+        margin-left: 10px;
+    }
+
+    .header-container nav {
+        margin-left: auto;
+        display: flex;
+        gap: 15px;
+    }
+
+    .header-container nav a {
+        text-decoration: none;
+        color: white;
+        font-weight: bold;
+        font-size: 15px;
+        padding: 8px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+
+    .header-container nav a:hover {
+        background-color: rgb(228, 41, 56);
+    }
+
+    .container {
+        text-align: center;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        max-width: 80%;
+        width: 1200px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    .header {
+        background: linear-gradient(to right, rgb(16, 17, 22), #4169e1);
+        color: white;
+        text-align: center;
+        font-weight: bold;
+        font-size: 24px;
+        margin-bottom: 20px;
+        padding: 10px;
+    }
+
+    .reminder {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 16px;
+        color: red;
+        font-style: italic;
+        font-weight: bold;
+    }
+
+    .form-group, .form-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+    }
+
+    label {
+        font-weight: bold;
+        color: black;
+        width: auto;
+        text-align: right;
+        font-size: 15px;
+    }
+
+    input, select {
+        padding: 6px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        color: black;
+        width: 200px;
+        font-size: 15px;
+    }
+
+    .buttons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+
+    button {
+        background-color: royalblue;
+        color: white;
+        cursor: pointer;
+        border-radius: 5px;
+        padding: 6px 15px;
+        font-size: 15px;
+        border: none;
+        transition: background-color 0.3s;
+    }
+
+    button:hover {
+        background-color: darkblue;
+    }
+
+    .time-out-btn {
+        background-color: #4caf50;
+        font-weight: bold;
+    }
+
+    .time-out-btn:disabled {
+        background-color: #888;
+        cursor: not-allowed;
+    }
+
+    .timed-out, .returned {
+        background-color: #f44336 !important;
+        color: white;
+        pointer-events: none;
+        cursor: not-allowed;
+    }
+
+    .delete-btn {
+        background-color: #ff5447;
+    }
+
+    .delete-btn:hover {
+        background-color: #d32f2f;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background: linear-gradient(to bottom, #ffffff, #f0f0f0);
+        color: black;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+
+    th, td {
+        text-align: center;
+        padding: 8px;
+        font-size: 15px;
+    }
+
+    th {
+        background-color: royalblue;
+        color: white;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    /* Select Column Styles */
+    .select-header, .select-cell, .select-column {
+        width: 50px !important;
+        min-width: 50px !important;
+        max-width: 50px !important;
+        padding: 2px !important;
+        display: none;
+    }
+
+    .delete-checkbox {
+        margin: 0 auto;
+        display: block;
+        width: 16px;
+        height: 16px;
+    }
+
+    .show-delete-mode .delete-checkbox {
+        display: block !important;
+        margin: 0 auto;
+    }
+
+    .show-delete-mode .select-header,
+    .show-delete-mode .select-cell,
+    .show-delete-mode .select-column {
+        display: table-cell !important;
+        width: 30px;
+    }
+
+    .delete-controls {
+        display: none;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .show-delete-mode .delete-controls {
+        display: flex;
+    }
+
+    #deleteBtn.confirm-mode, .confirm-delete-btn {
+        background-color: #dc3545 !important;
+    }
+
+    #deleteBtn.confirm-mode:hover, .confirm-delete-btn:hover {
+        background-color: #c82333 !important;
+    }
+
+    .pagination {
+        margin-top: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .pagination button {
+        padding: 5px 10px;
+        background-color: royalblue;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+
+    .pagination button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+
+    .pagination span {
+        font-weight: bold;
+        color: black;
+    }
+
+    /* Popup styles */
+    .popup, .password-popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 24px;
+        z-index: 1000;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.19);
+        color: #333;
+        text-align: center;
+        width: 340px;
+        font-family: Arial, sans-serif;
+        font-size: 15px;
+        border-radius: 10px;
+    }
+
+    .popup h3, .password-popup h3 {
+        margin-bottom: 10px;
+        font-size: 20px;
+        color: black;
+        border-bottom: 1px solid #d0e2ff;
+        padding-bottom: 8px;
+    }
+
+    .popup p, .password-popup p {
+        margin-bottom: 20px;
+        font-size: 15px;
+        color: #444;
+    }
+
+    .popup-buttons, .password-popup-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .popup-buttons button, .password-popup-buttons button {
+        padding: 10px 18px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.2s ease;
+    }
+
+    .popup-buttons .danger-btn, .password-popup-buttons .danger-btn {
+        background-color: #e53935;
+        color: white;
+    }
+
+    .popup-buttons .danger-btn:hover, .password-popup-buttons .danger-btn:hover {
+        background-color: #c62828;
+    }
+
+    .popup-buttons button:not(.danger-btn), .password-popup-buttons button:not(.danger-btn) {
+        background-color: royalblue;
+        color: white;
+    }
+
+    .popup-buttons button:not(.danger-btn):hover, .password-popup-buttons button:not(.danger-btn):hover {
+        background-color: darkblue;
+    }
+
+        /* Add this to your existing CSS */
+    .popup-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+        z-index: 999; /* Just below the popup */
+    }
+
+    /* Modify your existing popup class to show when active */
+    .popup.active {
+        display: block;
+    }
+
+    .loading, .wordload {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1001;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-size: 24px;
+    }
+
+    .chart-container {
+        margin-top: 30px;
+        width: 100%;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    canvas {
+        background-color: white;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .error-message {
+        color: red;
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        font-style: Bold;
+        font-size: 26px;
+        margin-top: 10px;
+        text-align: center;
+        display: none;
+    }
+
+    .admin-controls {
+        display: none;
+    }
+
+    @media (max-width: 768px) {
+        .form-group, .form-row {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        label {
+            text-align: left;
+            width: 100%;
+        }
+
+        input, select {
+            width: 100%;
+        }
+    }
+
+    @media print {
+        body {
+            margin: 0;
+            background: white;
+            color: black;
+        }
+
+        .container {
+            width: 100%;
+            margin: 0;
+            box-shadow: none;
+        }
+
+        table {
+            width: 100%;
+            border: none;
+        }
+
+        th, td {
+            padding: 4px;
+            font-size: 12px;
+        }
+
+        .form-group, .form-row,
+        .buttons, .header,
+        .reminder, .header-container nav,
+        .delete-controls {
+            display: none;
+        }
+
+        input[type="checkbox"] {
+            display: none;
+        }
+    }
+    
+</style>
+</head>
+
+<body>
+    <div class="header-container">
+        <a href="frontpage.html"> <img src="ecclogo.png" alt="ECC Logo"> </a>
+        <span><b>ECUMENICAL CHRISTIAN COLLEGE</b></span>
+        <nav>
+            <a href="index.php">EXPLORE</a>
+            <a href="LogForm.html">LOG FORM</a>
+            <a href="voucher.html">ECC PORTAL</a>
+            <a href="BorrowersForm.html">BORROWERS FORM</a>
+            <a href="Admin.php" style="margin-right: 10px;">ADMIN</a> 
+        </nav>
+    </div>
+
+    <div class="container">
+        <div class="header">ECC LIBRARY TIME LOG FORM</div>
+        <div class="reminder">
+            Reminder: Don't forget to click the Time Out before leaving the Library.
+        </div>
+        <form id="timeInForm">
+            <div class="form-row">
+                <label for="name">Name:</label>
+                <input type="text" id="name" placeholder="Enter Complete Name" required>
+                <label for="section">Section:</label>
+                <select id="section" required>
+                    <option value="" disabled selected>Select Section</option>
+                    <option value="Teacher">Teacher</option>
+                    <option value="7-Paul">7-Paul</option>
+                    <option value="8-Jude">8-Jude</option>
+                    <option value="9-Abraham">9-Abraham</option>
+                    <option value="10-Calvin">10-Calvin</option>
+                    <option value="10-Luther">10-Luther</option>
+                    <option value="11-HUMMS">11-HUMMS</option>
+                    <option value="11-ABM">11-ABM</option>
+                    <option value="11-STEM">11-STEM</option>
+                    <option value="12-HUMMS">12-HUMMS</option>
+                    <option value="12-ABM">12-ABM</option>
+                    <option value="12-STEM">12-STEM</option>
+                </select>
+                <button type="button" onclick="addEntry()">Time In</button>
+                
+                <button type="button" id="adminBtn">Admin</button>
+            </div>
+
+            <div class="buttons admin-controls">
+                <button type="button" onclick="window.print()">Print</button>
+                <button type="button" onclick="downloadExcel()">Download Word</button>
+                <button type="button" id="clearBtn">Clear Data</button>
+                <button id="downloadPdfBtn" type="button">Download Graph</button>
+                <button type="button" id="deleteBtn">Delete Entries</button>
+            </div>
+
+            <div class="delete-controls admin-controls"> 
+                <button type="button" id="confirmDeleteBtn" class="confirm-delete-btn">Confirm Delete</button>
+                <button type="button" id="cancelDeleteBtn">Cancel</button>
+            </div>
+
+
+            <!-- Added error message element -->
+            <div id="errorMessage" class="error-message" style="display: none; font-size: 20px;">Please enter your complete name!</div>
+        </form>
+
+        <!-- Dim background overlay -->
+        <div id="popupOverlay" class="popup-overlay"></div>
+
+        <!-- Clear Data Confirmation Popup -->
+        <div id="confirmClearPopup" class="popup">
+            <h3>Clear Table Data</h3>
+            <p>Are you sure you want to delete all table data?</p>
+            <div class="popup-buttons">
+                <button id="confirmClearBtn" class="danger-btn">Confirm Delete</button>
+                <button id="cancelClearBtn">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Password Popup -->
+        <div id="passwordPopup" class="popup">
+            <h3>Admin Access</h3>
+            <p>Please enter the admin password:</p>
+            <input type="password" id="adminPassword" placeholder="Enter password" style="width: 100%; padding: 8px; margin-bottom: 15px;">
+            <div class="popup-buttons">
+                <button id="confirmPasswordBtn">Confirm</button>
+                <button id="cancelPasswordBtn">Cancel</button>
+            </div>
+        </div>
+
+        <table id="entriesTable">
+            <thead>
+                <tr>
+                    <th class="select-column" style="width: 30px;">Select</th>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Section</th>
+                    <th>Date</th>
+                    <th>Time In</th>
+                    <th>Time Out</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div class="pagination">
+            <button id="prevPageBtn" onclick="prevPage()">Previous</button>
+            <span id="pageInfo">Page 1</span>
+            <button id="nextPageBtn" onclick="nextPage()">Next</button>
+        </div>
+
+    </div>
+  
+    <canvas id="usageChart" style="display: none;"></canvas> <!-- Hidden Chart -->
+    <canvas id="hiddenCanvas" style="display: none;"></canvas>
+
+    <script>
+        const tableBody = document.getElementById('tableBody');
+        let entries = JSON.parse(localStorage.getItem('libraryEntries')) || [];
+        let deleteMode = false;
+
+        let currentPage = 1;
+        const rowsPerPage = 10;
+
+        function getPaginatedEntries() {
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            return entries.slice(start, end);
+        }
+
+        function totalPages() {
+            return Math.ceil(entries.length / rowsPerPage);
+        }
+
+        function updatePaginationButtons() {
+            document.getElementById("prevPageBtn").disabled = currentPage === 1;
+            document.getElementById("nextPageBtn").disabled = currentPage === totalPages();
+            document.getElementById("pageInfo").textContent = `Page ${currentPage} of ${totalPages()}`;
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages()) {
+                currentPage++;
+                renderTable();
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        }
+
+
+        function renderTable() {
+            const paginatedEntries = getPaginatedEntries();
+            tableBody.innerHTML = paginatedEntries.map((entry, index) => {
+                const globalIndex = (currentPage - 1) * rowsPerPage + index;
+                return `
+                    <tr>
+                        <td class="select-column"><input type="checkbox" class="delete-checkbox" data-index="${globalIndex}"></td>
+                        <td>${entries.length - globalIndex}</td>
+                        <td>${entry.name}</td>
+                        <td>${entry.section}</td>
+                        <td>${formatDate(entry.date)}</td>
+                        <td>${formatTime(entry.timeIn)}</td>
+                        <td>${formatTime(entry.timeOut)}</td>
+                        <td>
+                            <button 
+                                class="time-out-btn ${entry.timeOut ? 'timed-out' : ''}" 
+                                onclick="timeOut(${globalIndex})" 
+                                ${entry.timeOut ? 'disabled' : ''}>
+                                ${entry.timeOut ? 'Timed Out' : 'Time Out'}
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            updatePaginationButtons();
+        }
+
+
+        function formatDate(isoDate) {
+            const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const dateObj = new Date(isoDate);
+            const day = daysOfWeek[dateObj.getDay()];
+            const month = dateObj.getMonth() + 1;
+            const date = dateObj.getDate();
+            const year = dateObj.getFullYear();
+            return `${day}, ${month}/${date}/${year}`;
+        }
+
+        function formatTime(timeString) {
+            if (!timeString) return 'N/A';
+            const [hours, minutes] = timeString.split(':');
+            const dateObj = new Date();
+            dateObj.setHours(hours, minutes);
+            return dateObj.toLocaleTimeString([], {
+                hour: 'numeric', // Removes leading 0
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+
+
+        function addEntry() {
+            const name = document.getElementById('name').value.trim();
+            const section = document.getElementById('section').value;
+
+            // Added validation for at least two names
+            const nameParts = name.split(' ');
+            if (nameParts.length < 2) {
+                document.getElementById('errorMessage').style.display = 'block';
+                return; // Stop the function if validation fails
+            } else {
+                document.getElementById('errorMessage').style.display = 'none';
+            }
+
+            if (!name || !section) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            const now = new Date();
+            const currentDate = now.toISOString().split('T')[0]; // Get just the date part in YYYY-MM-DD format
+            const currentTime = now.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false // Use 24-hour format for consistency
+            }).replace(/^24:/, '00:'); // Handle midnight case
+
+            const isDuplicate = entries.some(entry =>
+                entry.name === name &&
+                entry.section === section &&
+                currentDate === entry.date.split('T')[0] && // Compare just the date part
+                new Date().getTime() - new Date(`${entry.date}T${entry.timeIn}`).getTime() < 600000
+            );
+
+            if (isDuplicate) {
+                alert('Duplicate entry detected. Please wait before logging again.');
+                return;
+            }
+
+            entries.unshift({
+                date: now.toISOString(), // Store full ISO string including time
+                name,
+                section,
+                timeIn: currentTime,
+                timeOut: null,
+            });
+            currentPage = 1;
+
+            localStorage.setItem('libraryEntries', JSON.stringify(entries));
+            renderTable();
+            document.getElementById('timeInForm').reset();
+        }
+
+        function timeOut(index) {
+            const now = new Date();
+            entries[index].timeOut = now.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false // Use 24-hour format for consistency
+            }).replace(/^24:/, '00:'); // Handle midnight case
+            localStorage.setItem('libraryEntries', JSON.stringify(entries));
+            renderTable();
+        }
+
+        function downloadExcel() {
+            // Check if entries are empty
+            if (entries.length === 0) {
+                alert("No data available to generate the Word document.");
+                return;
+            }
+
+            // Create a Word document content
+            const tableContent = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+            <head>
+                <meta charset="UTF-8">
+                <title>Library Time Log</title>
+                <style>
+                    h1 {
+                        text-align: center; /* Center the heading */
+                        font-size: 24px;
+                        margin-bottom: 20px;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 20px;
+                        font-family: Arial, sans-serif;
+                        font-size: 14px;
+                    }
+                    th, td {
+                        border: 0.5px solid #000; /* Set border to 0.5px */
+                        padding: 8px;
+                        text-align: center;
+                    }
+                    th {
+                        background-color: royalblue;
+                        color: white;
+                    }
+                </style>
+            </head>
+            <body>
+                <h1>ECC Library Time Log</h1>
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Name</th>
+                            <th>Section</th>
+                            <th>Time In</th>
+                            <th>Time Out</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${entries.map((entry, index) => `
+                            <tr>
+                                <td>${entries.length - index}</td>
+                                <td>${entry.name}</td>
+                                <td>${entry.section}</td>
+                                <td>${formatDate(entry.date)}</td>
+                                <td>${entry.timeIn}</td>
+                                <td>${entry.timeOut || 'N/A'}</td>
+                                <td>${entry.timeOut ? 'Timed Out' : 'Not Timed Out'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </body>
+        </html>
+    `;
+
+            // Convert the HTML content to a Blob
+            const blob = new Blob([tableContent], { type: 'application/msword' });
+
+            // Save the Blob as a Word document using FileSaver.js
+            saveAs(blob, 'library_time_log.doc');
+        }
+
+        document.getElementById('name').addEventListener('input', function () {
+            this.value = this.value
+                .toLowerCase()
+                .split(' ')
+                .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+                .join(' ');
+        });
+
+        document.getElementById("downloadPdfBtn").addEventListener("click", function () {
+            // Check if entries are empty
+            if (entries.length === 0) {
+                alert("No data available to generate the chart.");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Title
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(22);
+            const pageWidth = doc.internal.pageSize.getWidth();
+            doc.text("ECC Library Data Usage Report", pageWidth / 2, 10, { align: "center" });
+
+            // Collect Data Usage by Section
+            const sectionUsage = {};
+            entries.forEach(entry => {
+                sectionUsage[entry.section] = (sectionUsage[entry.section] || 0) + 1;
+            });
+
+            // Define section order
+            const sectionOrder = [
+                "Teacher", "7-Paul", "8-Jude", "9-Abraham", "10-Calvin", "10-Luther",
+                "11-HUMMS", "11-ABM", "11-STEM", "12-HUMMS", "12-ABM", "12-STEM"
+            ];
+
+            // Filter & sort labels based on defined order
+            const labels = sectionOrder.filter(section => section in sectionUsage);
+            const data = labels.map(label => sectionUsage[label]);
+
+            const canvas = document.getElementById("usageChart");
+            const ctx = canvas.getContext("2d");
+
+            // Increase resolution
+            canvas.width = 1600;  // 2x for higher quality
+            canvas.height = 800;
+            ctx.scale(2, 2);  // Scale drawing for better resolution
+
+            // Destroy previous chart if it exists
+            if (window.myChart) {
+                window.myChart.destroy();
+            }
+
+            // Generate Chart
+            window.myChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Data Usage per Section",
+                        data: data,
+                        backgroundColor: "royalblue",
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'black', // Set legend font color to black
+                                font: {
+                                    size: 25, // Increase legend font size
+                                    weight: 'bold' // Make the font bold
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: 'black',
+                                font: {
+                                    size: 25, // Increase x-axis font size
+                                    weight: 'bold', // Make the font bold
+                                }
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: 'black',
+                                font: {
+                                    size: 25, // Increase y-axis font size
+                                    weight: 'bold', // Make the font bold
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Wait for Chart to Render, then Capture Image
+            setTimeout(() => {
+                const chartImage = canvas.toDataURL("image/png", 1.0); // Set high-quality PNG
+
+                // Add Chart to PDF
+                doc.addImage(chartImage, "PNG", 10, 20, 180, 90);  // Reduce scaling for sharpness
+
+                // Save PDF
+                doc.save("Library_Data_Report.pdf");
+
+                // Hide Canvas Again
+                canvas.style.display = "none";
+            }, 1000); // Wait 1 second for chart rendering
+        });
+
+        // Admin Button functionality
+        document.getElementById("adminBtn").addEventListener("click", function () {
+            const adminControls = document.querySelector(".admin-controls");
+            
+            // If admin controls are already visible, hide them
+            if (adminControls.style.display === "flex") {
+                adminControls.style.display = "none";
+                this.textContent = "Admin";
+                exitDeleteMode();
+                return;
+            }
+            
+            // Show password popup
+            document.getElementById("passwordPopup").style.display = "block";
+            document.getElementById("popupOverlay").style.display = "block";
+            document.getElementById("adminPassword").focus();
+        });
+
+        // Password popup handlers
+        document.getElementById("confirmPasswordBtn").addEventListener("click", function() {
+            const password = document.getElementById("adminPassword").value;
+            const adminControls = document.querySelector(".admin-controls");
+            
+            if (password === "EccAdmin1963!") {
+                adminControls.style.display = "flex";
+                document.getElementById("adminBtn").textContent = "Hide Admin";
+            } else {
+                alert("Incorrect password. Access denied.");
+            }
+            
+            // Clear and hide popup
+            document.getElementById("adminPassword").value = "";
+            document.getElementById("passwordPopup").style.display = "none";
+            document.getElementById("popupOverlay").style.display = "none";
+        });
+
+        document.getElementById("cancelPasswordBtn").addEventListener("click", function() {
+            // Clear and hide popup
+            document.getElementById("adminPassword").value = "";
+            document.getElementById("passwordPopup").style.display = "none";
+            document.getElementById("popupOverlay").style.display = "none";
+        });
+
+        document.getElementById("adminPassword").addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+                document.getElementById("confirmPasswordBtn").click();
+            }
+        });
+
+        // Delete functionality
+        document.getElementById('deleteBtn').addEventListener('click', function() {
+            enterDeleteMode();
+        });
+
+        document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
+            exitDeleteMode();
+        });
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+            const checkboxes = document.querySelectorAll('.delete-checkbox:checked');
+
+            if (checkboxes.length === 0) {
+                alert('Please select at least one record to delete.');
+                return;
+            }
+
+            const confirmDelete = confirm(`Are you sure you want to delete ${checkboxes.length} selected record(s)?`);
+            if (!confirmDelete) return;
+
+            // Get indexes of items to delete (sorted in descending order)
+            const indexesToDelete = Array.from(checkboxes)
+                .map(cb => parseInt(cb.dataset.index))
+                .sort((a, b) => b - a);
+
+            // Remove selected items from storage
+            indexesToDelete.forEach(index => {
+                entries.splice(index, 1);
+            });
+
+            // Save changes
+            localStorage.setItem('libraryEntries', JSON.stringify(entries));
+            currentPage = 1;
+            
+            // Refresh the display
+            renderTable();
+            exitDeleteMode();
+            alert(`${checkboxes.length} record(s) deleted successfully.`);
+        });
+
+        function enterDeleteMode() {
+            deleteMode = true;
+            document.getElementById('entriesTable').classList.add('show-delete-mode');
+            document.querySelector('.delete-controls').style.display = 'flex';
+            document.getElementById('deleteBtn').style.display = 'none';
+            // Remove this line to prevent dimming:
+            // document.getElementById('popupOverlay').style.display = 'block';
+        }
+
+        function exitDeleteMode() {
+            deleteMode = false;
+            document.getElementById('entriesTable').classList.remove('show-delete-mode');
+            document.querySelector('.delete-controls').style.display = 'none';
+            document.getElementById('deleteBtn').style.display = 'block';
+            // Remove this line since we're not using the overlay here:
+            // document.getElementById('popupOverlay').style.display = 'none';
+            
+            // Uncheck all checkboxes
+            document.querySelectorAll('.delete-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+
+        // Clear data functionality - show popup and overlay
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            document.getElementById('confirmClearPopup').classList.add('active');
+            document.getElementById('popupOverlay').style.display = 'block';
+        });
+
+        // Cancel clear - hide popup and overlay
+        document.getElementById('cancelClearBtn').addEventListener('click', function() {
+            document.getElementById('confirmClearPopup').classList.remove('active');
+            document.getElementById('popupOverlay').style.display = 'none';
+        });
+
+        // Confirm clear - hide popup and overlay
+        document.getElementById('confirmClearBtn').addEventListener('click', function() {
+            entries = [];
+            localStorage.setItem('libraryEntries', JSON.stringify(entries));
+            renderTable();
+            document.getElementById('confirmClearPopup').classList.remove('active');
+            document.getElementById('popupOverlay').style.display = 'none';
+            alert('All table data has been cleared.');
+        });
+
+        // Click outside to cancel delete mode
+        document.addEventListener('click', function(e) {
+            if (!deleteMode) return;
+
+            // Check if click is inside the table or delete controls
+            const isClickInsideTable = e.target.closest('#entriesTable');
+            const isClickInDeleteControls = e.target.closest('.delete-controls');
+            const isClickOnDeleteBtn = e.target.closest('#deleteBtn');
+
+            // Exit delete mode if clicking outside relevant elements
+            if (!isClickInsideTable && !isClickInDeleteControls && !isClickOnDeleteBtn) {
+                exitDeleteMode();
+            }
+        });
+
+        // Initialize the table
+        renderTable();
+    </script>
+</body>
+</html>
